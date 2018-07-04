@@ -1,0 +1,17 @@
+{
+  "name": "winter-is-coming",
+  "productName": "WinterIsComing",
+  "version": "0.0.1",
+  "main": "./main.prod.js",
+  "author": {
+    "name": "Georgii Oleinikov",
+    "email": "olgeorge@gmail.com",
+    "url": "https://github.com/olgerge"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "postinstall": "npm run electron-rebuild"
+  },
+  "license": "MIT",
+  "dependencies": {}
+}
