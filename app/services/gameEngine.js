@@ -9,6 +9,8 @@ import {
 
 export const ROOMS_CHANGED = 'rooms-changed';
 
+const REJOIN_GRACE_PERIOD_MS = 30 * 1000;
+
 const TICK_INTERVAL_MS = 2000;
 const NEW_ZOMBIES_PER_TICK = 0.5;
 const ZOMBIE_MOVE_PER_TICK = 1;
@@ -81,6 +83,9 @@ class GameEngine extends EventEmitter {
   };
 
   _tickForRoom = (room) => {
+    if (room.isFreezed) { return; }
+
+    console.log('Tick for room');
     room.zombies.forEach(moveZombie);
     const newZombiesCount = Math.floor(NEW_ZOMBIES_PER_TICK) + (Math.random() > NEW_ZOMBIES_PER_TICK % 1) ? 1 : 0;
     _.times(newZombiesCount, () => {
@@ -110,6 +115,8 @@ class GameEngine extends EventEmitter {
       };
     } else {
       rooms[roomId].clients[clientId] = client;
+      rooms[roomId].isFreezed = false;
+      console.log('Unfreezing the room');
     }
     this._reportMapToClient({ clientId, roomId });
     this.emit(ROOMS_CHANGED, rooms);
@@ -119,7 +126,15 @@ class GameEngine extends EventEmitter {
     const room = getClientRoom(clientId);
     if (room.clients[clientId]) delete room.clients[clientId];
     if (!Object.values(room.clients).length) {
-      this._destroyRoom(room.roomId);
+      // Let's give the user a chance to rejoin in case of connection problems etc
+      room.isFreezed = true;
+      console.log('Freezing the room');
+      setTimeout(() => {
+        if (!Object.values(room.clients).length) {
+          console.log('Deleting the room');
+          this._destroyRoom(room.roomId);
+        }
+      }, REJOIN_GRACE_PERIOD_MS);
     }
     this.emit(ROOMS_CHANGED, rooms);
   };
