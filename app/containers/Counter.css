@@ -2,6 +2,40 @@
   height: 100%;
 }
 
+.killCount {
+  position: absolute;
+  left: 680px;
+  top: 5px;
+  opacity: 0.75;
+}
+
+.gameOverlay {
+  position: absolute;
+  background-color: rgba(91, 130, 255, 0.5);
+  height: 600px;
+  width: 800px;
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.gameOverlay h2 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+.gameOverlay h4 {
+  margin: 3px;
+}
+
 .container {
   height: 100%;
 
@@ -20,6 +54,7 @@
 
 .backButton {
   position: absolute;
+  z-index: 1000;
 }
 
 .counter {

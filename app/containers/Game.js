@@ -26,7 +26,6 @@ import {
 let zombies = {};
 
 var game;
-
 var back;
 var archer;
 var anim;
@@ -125,7 +124,7 @@ const updateMap = (map) => {
     updatedZombie.isVisited = true;
   });
   Object.values(zombies).forEach(zombie => {
-    if (zombie && !zombie.isVisited) {
+    if (zombie && !zombie.isVisited && !zombie.isDead) {
       removeZombie(zombie.id);
     } else {
       zombie.isVisited = false;
@@ -163,6 +162,16 @@ const unfreezeGame = () => {
 
 class Game extends Component {
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      connectionLost: false,
+      gameOver: false,
+      kills: 0,
+    };
+  }
+
   componentDidMount() {
     this.gameClientService = getClientService();
     this.gameClientService.on(EVENT_MAP_CHANGED, this.onMapChanged);
@@ -187,30 +196,33 @@ class Game extends Component {
 
   onConnectionError = () => {
     freezeGame();
-    //if (window.confirm('The connection is lost. Reconnect?')) {
-    //  remote.app.relaunch();
-    //  remote.app.exit(0);
-    //}
+    this.setState({ connectionLost: true });
   };
 
   onConnectionSuccess = () => {
-    unfreezeGame();
-    //if (window.confirm('The connection is lost. Reconnect?')) {
-    //  remote.app.relaunch();
-    //  remote.app.exit(0);
-    //}
+    if (this.state.connectionLost) {
+      this.setState({ connectionLost: false });
+      unfreezeGame();
+    }
   };
 
   onMapChanged = ({ map }) => {
+    if (this.state.gameOver) {
+      unfreezeGame();
+    }
     updateMap(map);
   };
 
   onZombieHit = ({ clientId, zombieId, isKilled }) => {
     const zombie = zombies[zombieId];
     if (isKilled) {
+      zombie.isDead = true;
       zombie.sprite.body.velocity.x = 0;
       zombie.sprite.body.velocity.y = 0;
       zombie.sprite.animations.play('die');
+      if (clientId === this.gameClientService.clientId) {
+        this.setState({ kills: this.state.kills + 1});
+      }
     } else {
       zombie.sprite.animations.play('hit');
     }
@@ -224,6 +236,7 @@ class Game extends Component {
   };
 
   onGameOver = () => {
+    this.setState({ gameOver: true });
     this.gameClientService.removeListener(EVENT_MAP_CHANGED, this.onMapChanged);
     this.gameClientService.removeListener(EVENT_ZOMBIE_HIT, this.onZombieHit);
     this.gameClientService.removeListener(EVENT_GAME_OVER, this.onGameOver);
@@ -278,14 +291,29 @@ class Game extends Component {
   };
 
   render() {
+    const howMuch = this.state.kills > 50 ? 'plenty' : 'some';
+
     return (
       <div className={styles.outerContainer}>
-        {/*<div className={styles.backButton} data-tid="backButton">*/}
-          {/*<Link to="/home">*/}
-            {/*<i className="fa fa-arrow-left fa-3x"/>*/}
-          {/*</Link>*/}
-        {/*</div>*/}
-        <div id="game-canvas"/>
+        <div className={styles.killCount}>
+          <p>kills: { this.state.kills }</p>
+        </div>
+        {
+          this.state.gameOver &&
+          <div className={styles.gameOverlay}>
+            <h2>Score: { this.state.kills }</h2>
+            <h4>You have killed { howMuch }, yet the bastards</h4>
+            <h4>have managed to reach the wall!</h4>
+          </div>
+        }
+        {
+          !this.state.gameOver && this.state.connectionLost &&
+          <div className={styles.gameOverlay}>
+            <h2>Connection Lost</h2>
+            <h4>reconnecting to the server...</h4>
+          </div>
+        }
+        <div id="game-canvas" />
       </div>
     );
   }
