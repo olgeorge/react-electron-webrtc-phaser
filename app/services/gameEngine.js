@@ -13,8 +13,10 @@ const REJOIN_GRACE_PERIOD_MS = 30 * 1000;
 
 const TICK_INTERVAL_MS = 2000;
 const NEW_ZOMBIES_PER_TICK = 0.5;
+const NEW_ZOMBIES_PER_TICK_INCREMENT = 0.1;
+const WAVE_TICK_LENGTH = 10;
 const ZOMBIE_MOVE_PER_TICK = 1;
-const MAX_ZOMBIES_PER_MAP = 50;
+const MAX_ZOMBIES_PER_MAP = 100;
 
 const MAP_WIDTH = 32;
 const MAP_HEIGHT = 10;
@@ -82,17 +84,27 @@ class GameEngine extends EventEmitter {
     });
   };
 
+  _getNewZombiesCount = (room) => {
+    // Let them come in increasing waves
+    const rate = room.zombiesPerTick * (Math.sin(room.totalTicks * 3.14 / WAVE_TICK_LENGTH) + 1) / 2;
+    return Math.floor(rate) + ((Math.random() > rate % 1) ? 1 : 0);
+  };
+
   _tickForRoom = (room) => {
     if (room.isFreezed) { return; }
 
-    console.log('Tick for room');
+    const interval = (new Date().getTime() - room.tickEpochMs || 0) / 1000
+    console.log('Tick for room, interval', interval);
+    room.tickEpochMs = new Date().getTime();
     room.zombies.forEach(moveZombie);
-    const newZombiesCount = Math.floor(NEW_ZOMBIES_PER_TICK) + (Math.random() > NEW_ZOMBIES_PER_TICK % 1) ? 1 : 0;
+    const newZombiesCount = this._getNewZombiesCount(room);
     _.times(newZombiesCount, () => {
       if (room.zombies.length < MAX_ZOMBIES_PER_MAP) {
         room.zombies.push(newZombie());
       }
     });
+    room.zombiesPerTick += NEW_ZOMBIES_PER_TICK_INCREMENT;
+    room.totalTicks += 1;
     if (_.find(room.zombies, zombie => zombie.x < 0)) {
       Object.keys(room.clients).forEach(clientId => this.gameHostService.reportGameOver(clientId));
       this._destroyRoom(room.roomId);
@@ -111,6 +123,8 @@ class GameEngine extends EventEmitter {
         isStarted: false,
         startedAt: undefined,
         zombies: [],
+        zombiesPerTick: NEW_ZOMBIES_PER_TICK,
+        totalTicks: 0,
         clients: { [clientId]: client },
       };
     } else {
@@ -173,4 +187,9 @@ class GameEngine extends EventEmitter {
   }
 }
 
-export const getEngine = gameHostService => new GameEngine(gameHostService);
+let engine = null;
+
+export const getEngine = gameHostService => {
+  engine = engine || new GameEngine(gameHostService);
+  return engine;
+};

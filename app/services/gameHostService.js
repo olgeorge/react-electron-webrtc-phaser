@@ -190,4 +190,9 @@ class GameHostService extends EventEmitter {
 
 }
 
-export const getService = hostUsername => new GameHostService(hostUsername);
+let service = null;
+
+export const getService = hostUsername => {
+  service = service || new GameHostService(hostUsername);
+  return service;
+};
