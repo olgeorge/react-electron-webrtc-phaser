@@ -92,7 +92,7 @@ class GameClientService extends EventEmitter {
     this.emit(EVENT_JOINED);
   };
 
-  joinNewRoom = (serverId) => this.joinRoom(serverId, undefined);
+  joinNewRoom = (serverId) => this.joinRoom(serverId, uuidv4());
 
   leaveRoom = () => {
     if (this.serverConnection) {

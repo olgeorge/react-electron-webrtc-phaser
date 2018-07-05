@@ -64,7 +64,6 @@ class PlayGame extends Component {
               <i className="fa fa-arrow-left fa-3x"/>
             </Link>
           </div>
-        //}
         {/*<div className={styles.container}>*/}
           {/*<pre>{JSON.stringify(availableServers, null, 2)}</pre>*/}
         {/*</div>*/}
