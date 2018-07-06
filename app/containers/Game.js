@@ -10,6 +10,8 @@ import styles from './Counter.css';
 import {
   getService as getClientService,
   EVENT_JOINED,
+  EVENT_OTHER_USER_JOINED,
+  EVENT_OTHER_USER_LEFT,
   EVENT_MAP_CHANGED,
   EVENT_ZOMBIE_HIT,
   EVENT_GAME_OVER,
@@ -23,21 +25,17 @@ import {
 } from '../actions/actions';
 
 
+let game;
+let background;
 let zombies = {};
-
-var game;
-var back;
-var archer;
-var anim;
-var loopText;
-
-var hitAnim;
+let archers = {};
+let archer = undefined;
 
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
 
-const CELL_WIDTH = 20;
-const CELL_HEIGHT = 60;
+const CELL_WIDTH = 24;
+const CELL_HEIGHT = 58;
 const ZOMBIE_WIDTH = 35;
 const ZOMBIE_HEIGHT = 33;
 const ZOMBIE_HIT_WIDTH = 15;
@@ -45,30 +43,51 @@ const ZOMBIE_HIT_HEIGHT = 25;
 const ZOMBIE_ANCHOR_X = 17 / ZOMBIE_WIDTH;
 const ZOMBIE_ANCHOR_Y = 21 / ZOMBIE_HEIGHT;
 const ZOMBIE_SCALE = 2;
-const WALL_WIDTH = 155;
+const MAP_MARGIN_LEFT = 55;
+const MAP_MARGIN_TOP = 20;
+
+const NAME_DISPLACEMENT_X = 22;
+const NAME_DISPLACEMENT_Y = 53;
 
 const cellToPixel = ({ mapx, mapy }) => ({
-  x: Math.round(WALL_WIDTH + mapx * CELL_WIDTH + ZOMBIE_WIDTH / 2),
-  y: Math.round(mapy * CELL_HEIGHT + ZOMBIE_HEIGHT / 2),
+  x: Math.round(MAP_MARGIN_LEFT + mapx * CELL_WIDTH + ZOMBIE_WIDTH / 2 * ZOMBIE_SCALE),
+  y: Math.round(MAP_MARGIN_TOP +  mapy * CELL_HEIGHT + ZOMBIE_HEIGHT / 2 * ZOMBIE_SCALE),
 });
 
 const random = (fromInclusive, toExclusive) => Math.floor(Math.random() * (toExclusive - fromInclusive)) + fromInclusive;
 
-const addArcherSprite = (name, { x, y }) => {
+const addArcher = ({ clientId, username }) => {
+  const x = -100;
+  const y = -100;
   const sprite = game.add.sprite(x, y, 'archer', 0);
   sprite.anchor.setTo(0.5, 0.5);
   sprite.animations.add('aim', _.range(0, 13), 20, false);
   sprite.animations.add('shoot', [14, 15, 0], 20, false);
-  archer = { sprite };
-  game.add.text(x - 30, y - 50, name, { font: "15px", fill: 'white', align: 'center'});
-  //archer.scale.set(4);
-  //archer.smoothed = false;
+  const text = game.add.text(x - NAME_DISPLACEMENT_X, y - NAME_DISPLACEMENT_Y, username,
+    { font: "15px", fill: 'white', align: 'center'});
+  const ar = { clientId, username, sprite, text, joinTime: new Date().getTime() };
+  archers[clientId] = ar;
+  return ar;
+};
 
-  //anim.onStart.add(animationStarted, this);
-  //anim.onLoop.add(animationLooped, this);
-  //anim.onComplete.add(animationStopped, this);
+const removeArcher = ({ clientId }) => {
+  const ar = archers[clientId];
+  if (!ar) return;
+  ar.sprite.destroy();
+  ar.text.destroy();
+  delete archers[clientId];
+};
 
-  //anim.play(10, true);
+const repositionArchers = () => {
+  const archersArray = Object.values(archers);
+  _.sortBy(archersArray, 'joinTime').forEach((ar, index) => {
+    const x = 25;
+    const y = SCREEN_HEIGHT / (archersArray.length + 1) * (index + 1);
+    ar.sprite.x = x;
+    ar.sprite.y = y;
+    ar.text.x = x - NAME_DISPLACEMENT_X;
+    ar.text.y = y - NAME_DISPLACEMENT_Y;
+  })
 };
 
 const removeZombie = (id) => {
@@ -82,7 +101,6 @@ const addZombie = ({ x: mapx, y: mapy, vx: mapvx, vy: mapvy, id, health }) => {
   const { x, y } = cellToPixel({ mapx, mapy });
   const sprite = game.add.sprite(x, y, 'zombie', 0);
   sprite.anchor.setTo(ZOMBIE_ANCHOR_X, ZOMBIE_ANCHOR_Y);
-  //sprite.inputEnabled = true;
   sprite.animations.add('walk', _.range(0, 13), 12, true);
   const dieAnimation = sprite.animations.add('die', _.range(13, 13 + 15), 12, false);
   dieAnimation.onComplete.add(() => removeZombie(id), this);
@@ -96,7 +114,6 @@ const addZombie = ({ x: mapx, y: mapy, vx: mapvx, vy: mapvy, id, health }) => {
   game.physics.enable(sprite, Phaser.Physics.ARCADE);
   sprite.body.velocity.x = mapvx * CELL_WIDTH / 2;
   sprite.body.velocity.y = mapvy * CELL_HEIGHT / 2;
-  //sprite.zombieId = id;
   const zombie = { id, mapx, mapy, mapvx, mapvy, health, sprite };
   zombies[id] = zombie;
   return zombie;
@@ -138,7 +155,7 @@ const pointIsInZombie = ({ x, y }, sprite) => {
 };
 
 const freezeGame = () => {
-  back.inputEnabled = false;
+  background.inputEnabled = false;
   archer.sprite.animations.stop();
   Object.values(zombies).forEach(zombie => {
     if (zombie) {
@@ -150,7 +167,7 @@ const freezeGame = () => {
 };
 
 const unfreezeGame = () => {
-  if (back) { back.inputEnabled = true; }
+  if (background) { background.inputEnabled = true; }
   Object.values(zombies).forEach(zombie => {
     if (zombie) {
       zombie.sprite.body.velocity.x = zombie.mapvx * CELL_WIDTH / 2;
@@ -166,6 +183,7 @@ class Game extends Component {
     super(props);
 
     this.state = {
+      loading: false,
       connectionLost: false,
       gameOver: false,
       kills: 0,
@@ -173,11 +191,13 @@ class Game extends Component {
   }
 
   componentDidMount() {
-    this.gameClientService = getClientService();
+    this.gameClientService = getClientService(this.props.username);
     this.gameClientService.on(EVENT_MAP_CHANGED, this.onMapChanged);
     this.gameClientService.on(EVENT_ZOMBIE_HIT, this.onZombieHit);
     this.gameClientService.on(EVENT_GAME_OVER, this.onGameOver);
     this.gameClientService.on(EVENT_JOINED, this.startRendering);
+    this.gameClientService.on(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
+    this.gameClientService.on(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
     this.gameClientService.on(EVENT_CONNECTION_ERROR, this.onConnectionError);
     this.gameClientService.on(EVENT_CONNECTION_SUCCESS, this.onConnectionSuccess);
   }
@@ -189,6 +209,8 @@ class Game extends Component {
     this.gameClientService.removeListener(EVENT_ZOMBIE_HIT, this.onZombieHit);
     this.gameClientService.removeListener(EVENT_GAME_OVER, this.onGameOver);
     this.gameClientService.removeListener(EVENT_JOINED, this.startRendering);
+    this.gameClientService.removeListener(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
+    this.gameClientService.removeListener(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
     this.gameClientService.removeListener(EVENT_CONNECTION_ERROR, this.onConnectionError);
     this.gameClientService.removeListener(EVENT_CONNECTION_SUCCESS, this.onConnectionSuccess);
     this.gameClientService = undefined;
@@ -206,11 +228,30 @@ class Game extends Component {
     }
   };
 
+  onLoadStart = () => {
+    this.setState({ loading: true });
+  };
+
+  onLoadComplete = () => {
+    this.setState({ loading: false });
+  };
+
   onMapChanged = ({ map }) => {
+    console.log('Received map', map);
     if (this.state.gameOver) {
       unfreezeGame();
     }
     updateMap(map);
+  };
+
+  otherUserJoined = ({ clientId, username }) => {
+    addArcher({ clientId, username });
+    repositionArchers();
+  };
+
+  otherUserLeft = ({ clientId }) => {
+    removeArcher({ clientId });
+    repositionArchers();
   };
 
   onZombieHit = ({ clientId, zombieId, isKilled }) => {
@@ -245,43 +286,59 @@ class Game extends Component {
   };
 
   onInputDown = () => {
-    console.log("You clicked down");
     archer.sprite.animations.play('aim');
   };
 
   onInputUp = (sprite, { x, y }) => {
-    console.log("You clicked up");
     archer.sprite.animations.play('shoot');
     this.shootAtPoint({ x, y });
   };
 
   addBackground = () => {
-    back = game.add.sprite(0, 0, 'bg');
-    back.events.onInputDown.add(this.onInputDown, this);
-    back.events.onInputUp.add(this.onInputUp, this);
-    back.inputEnabled = true;
-    //back.scale.set(0.5);
-    back.smoothed = false;
+    background = game.add.sprite(0, 0, 'bg');
+    background.events.onInputDown.add(this.onInputDown, this);
+    background.events.onInputUp.add(this.onInputUp, this);
+    background.inputEnabled = true;
+    background.smoothed = false;
   };
 
+  //https://opengameart.org/content/archer-static-64x64
+  //https://jesse-m.itch.io/skeleton-pack
+
   preload = () => {
-    game.load.image('bg', 'dist/assets/wall-full_2_pix.png');
+    game.load.image('bg', 'dist/assets/wall-full_6.png');
     game.load.spritesheet('archer', 'dist/assets/archer_3.png', 64, 64, 16);
     game.load.spritesheet('zombie', 'dist/assets/zombie.png', 35, 33, 13 + 15 + 8);
   };
 
   create = () => {
     game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.load.onLoadStart.add(this.onLoadStart, this);
+    game.load.onLoadComplete.add(this.onLoadComplete, this);
     this.addBackground();
-    addArcherSprite(this.props.username, { x: 50, y: 300 });
+    archer = addArcher({
+      username: this.props.username,
+      clientId: this.gameClientService.clientId,
+    });
+    repositionArchers();
+    //addZombie({ x: 0, y: 0, vx: 0, vy: 0, id: 1, health: 100 })
+    //addZombie({ x: 10, y: 0, vx: 0, vy: 0, id: 23, health: 100 })
+    //addZombie({ x: 20, y: 0, vx: 0, vy: 0, id: 2343, health: 100 })
+    //addZombie({ x: 27, y: 0, vx: 0, vy: 0, id: 4, health: 100 })
+    //addZombie({ x: 28, y: 0, vx: 0, vy: 0, id: 2234, health: 100 })
+    //addZombie({ x: 29, y: 0, vx: 0, vy: 0, id: 3, health: 100 })
+    //addZombie({ x: 0, y: 9, vx: 0, vy: 0, id: 1, health: 100 })
+    //addZombie({ x: 10, y: 9, vx: 0, vy: 0, id: 435, health: 100 })
+    //addZombie({ x: 20, y: 9, vx: 0, vy: 0, id: 76, health: 100 })
+    //addZombie({ x: 29, y: 9, vx: 0, vy: 0, id: 45325, health: 100 })
+    //addZombie({ x: 30, y: 9, vx: 0, vy: 0, id: 2, health: 100 })
+    //addZombie({ x: 31, y: 9, vx: 0, vy: 0, id: 3, health: 100 })
   };
 
   startRendering = () => {
     game = new Phaser.Game(SCREEN_WIDTH, SCREEN_HEIGHT, Phaser.AUTO, 'game-canvas', {
       preload: this.preload,
       create: this.create,
-      update: () => {
-      },
     });
   };
 
@@ -291,23 +348,29 @@ class Game extends Component {
   };
 
   render() {
-    const howMuch = this.state.kills > 50 ? 'plenty' : 'some';
-
+    const { kills, gameOver, connectionLost, loading } = this.state;
+    const howMuch = kills > 50 ? 'plenty' : 'some';
     return (
       <div className={styles.outerContainer}>
         <div className={styles.killCount}>
-          <p>kills: { this.state.kills }</p>
+          <p>kills: { kills }</p>
         </div>
         {
-          this.state.gameOver &&
+          loading &&
           <div className={styles.gameOverlay}>
-            <h2>Score: { this.state.kills }</h2>
+            <h2>Loading...</h2>
+          </div>
+        }
+        {
+          !loading && gameOver &&
+          <div className={styles.gameOverlay}>
+            <h2>Score: { kills }</h2>
             <h4>You have killed { howMuch }, yet the bastards</h4>
             <h4>have managed to reach the wall!</h4>
           </div>
         }
         {
-          !this.state.gameOver && this.state.connectionLost &&
+          !loading && !gameOver && connectionLost &&
           <div className={styles.gameOverlay}>
             <h2>Connection Lost</h2>
             <h4>reconnecting to the server...</h4>
@@ -319,13 +382,4 @@ class Game extends Component {
   }
 }
 
-export default connect(
-  (state) => ({
-    availableServers: state.availableServers,
-  }),
-  {
-    dispatchServersDiscovered: serversDiscovered,
-    dispatchMapChanged: mapChanged,
-    dispatchGameOver: gameOver,
-  }
-)(Game);
+export default Game;

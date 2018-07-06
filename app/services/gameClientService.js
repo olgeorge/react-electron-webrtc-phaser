@@ -136,8 +136,8 @@ class GameClientService extends EventEmitter {
   _onGameMessageReceived = (message) => {
     switch (message.type) {
       case TYPE_USER_JOINED: {
-        const { joinedClientId } = message;
-        this.emit(EVENT_OTHER_USER_JOINED, { clientId: joinedClientId });
+        const { joinedClientId, joinedUsername } = message;
+        this.emit(EVENT_OTHER_USER_JOINED, { clientId: joinedClientId, username: joinedUsername });
         break;
       }
       case TYPE_USER_LEFT: {
@@ -169,5 +169,6 @@ let service = null;
 
 export const getService = clientUsername => {
   service = service || new GameClientService(clientUsername);
+  service.clientUsername = clientUsername;
   return service;
 };

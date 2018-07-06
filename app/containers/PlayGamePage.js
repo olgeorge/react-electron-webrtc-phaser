@@ -25,7 +25,8 @@ class PlayGame extends Component {
   }
 
   componentDidMount() {
-    this.gameClientService = getClientService();
+    const { user } = this.props;
+    this.gameClientService = getClientService(user.username);
     this.gameClientService.on(EVENT_GAME_OVER, this.onGameOver);
     this.gameClientService.start()
       .then(() => {
@@ -53,6 +54,7 @@ class PlayGame extends Component {
 
   render() {
     const {
+      user,
       availableServers,
     } = this.props;
     return (
@@ -69,7 +71,7 @@ class PlayGame extends Component {
         {/*</div>*/}
         {
           this.state.serverId &&
-          <Game username={this.props.user.username}/>
+          <Game username={user.username}/>
         }
       </div>
     );
