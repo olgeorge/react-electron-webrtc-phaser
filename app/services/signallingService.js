@@ -11,8 +11,6 @@ class SignallingService extends EventEmitter {
     this.socketOpened = false;
     this.webSocketConnection = webSocketConnection;
     this.webSocketConnection.on('message', this._onMessageReceived);
-    this.webSocketConnection.on('open', () => {  });
-    this.webSocketConnection.on('close', () => {  });
     this.localId = localId;
     this.isServer = isServer;
   }
@@ -24,23 +22,7 @@ class SignallingService extends EventEmitter {
       offer,
       [localIdName]: this.localId,
     };
-    //if (this.socketOpened) {
-      this.webSocketConnection.sendMessage(message, remoteId);
-    //} else {
-    //  this.offerToSend = { message, remoteId };
-    //}
-  };
-
-  _onWebSocketOpen = () => {
-    this.socketOpened = true;
-    //if (this.offerToSend) {
-    //  this.webSocketConnection.sendMessage(this.offerToSend.message, this.offerToSend.remoteId);
-    //}
-    //this.offerToSend = null;
-  };
-
-  _onWebSocketClose = () => {
-      this.socketOpened = false;
+    this.webSocketConnection.sendMessage(message, remoteId);
   };
 
   _onMessageReceived = (message) => {

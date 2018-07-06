@@ -25,6 +25,7 @@ class HostGame extends Component {
     const {
       rooms,
     } = this.props;
+
     return (
       <div className={styles.outerContainer}>
         <div className={styles.backButton} data-tid="backButton">
@@ -43,7 +44,7 @@ class HostGame extends Component {
 export default connect(
   (state) => ({
     user: state.user,
-    rooms: state.rooms,
+    rooms: state.serverState.rooms,
   }),
   {
     dispatchRoomsChanged: roomsChanged,

@@ -16,6 +16,7 @@ class PeerConnection extends EventEmitter {
     super();
     this.id = uuidv4();
     this.signallingService = signallingService;
+    this.remoteId = remoteId;
     this.isInitiator = isInitiator;
     this.peer = this._buildPeer(remoteId, isInitiator);
     console.log(`Created new peer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
@@ -30,7 +31,6 @@ class PeerConnection extends EventEmitter {
   close = () => {
     console.log(`Destroying peer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
     if (this.peer) {
-      this.signallingService.removeListener('signal', this._onSignallingOffer);
       this.peer.destroy();
     }
   };
@@ -72,6 +72,7 @@ class PeerConnection extends EventEmitter {
 
     peer.on('close', () => {
       console.log('WebRTC close' + this.id);
+      this.signallingService.removeListener('signal', this._onSignallingOffer);
       this.emit(EVENT_CLOSE);
     });
 
@@ -93,9 +94,11 @@ class PeerConnection extends EventEmitter {
     return peer;
   };
 
-  _onSignallingOffer = (offer) => {
-    console.log(`Received signalling offer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
-    this.peer.signal(offer);
+  _onSignallingOffer = (offer, remoteId) => {
+    if (this.remoteId === remoteId) {
+      console.log(`Received signalling offer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
+      this.peer.signal(offer);
+    }
   };
 
   signalOffer = (offer) => {

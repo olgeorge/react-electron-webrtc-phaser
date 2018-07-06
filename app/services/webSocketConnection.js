@@ -8,6 +8,8 @@ const SERVER_GUID = '71c497e0-50f5-4c7c-a8c9-9f26061413eb';
 export const EVENT_CONNECT = 'connect';
 export const EVENT_MESSAGE = 'message';
 
+const RECONNECT_INTERVAL_MS = 10000;
+
 class WebSocketConnection extends EventEmitter {
 
   constructor(localId, isServer, ...args) {
@@ -77,7 +79,7 @@ class WebSocketConnection extends EventEmitter {
       this.reconnectInterval = this.reconnectInterval || setInterval(() => {
         console.log('!!!reconnecting');
         this.socket.reconnect();
-      }, 10000);
+      }, RECONNECT_INTERVAL_MS);
       console.log('!!!EVENT CLOSED');
     });
     this.socket.addEventListener('error', (event) => {
