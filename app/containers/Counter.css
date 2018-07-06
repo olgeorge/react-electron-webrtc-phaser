@@ -9,6 +9,10 @@
   opacity: 0.75;
 }
 
+.solidOverlay {
+  background-color: rgba(57, 102, 115, 1);
+}
+
 .gameOverlay {
   position: absolute;
   background-color: rgba(57, 102, 115, 0.5);

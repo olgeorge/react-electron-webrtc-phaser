@@ -34,7 +34,8 @@ class LoginPage extends Component<Props> {
   }
 
   render() {
-    const { username } = this.state
+    const { username } = this.state;
+    const canStart = username && username.length <= 10;
     const onSubmit = username ? this.onSubmit : undefined;
     return (
       <div className={styles.container} data-tid="container">
@@ -51,7 +52,7 @@ class LoginPage extends Component<Props> {
             />
           </FormGroup>
           {
-            username &&
+            canStart &&
             <Link to='/home' onClick={this.onLinkClick}>Start</Link>
           }
         </form>
