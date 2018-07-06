@@ -96,15 +96,17 @@ class Game extends Component {
 
   otherUserJoined = ({ clientId, username }) => {
     this.screen.addArcher({ clientId, username });
+    this.screen.repositionArchers();
   };
 
   otherUserLeft = ({ clientId }) => {
     this.screen.removeArcher({ clientId });
+    this.screen.repositionArchers();
   };
 
-  onZombieHit = ({ clientId, zombieId, isKilled }) => {
-    this.screen.onZombieHit({ clientId, zombieId, isKilled });
-    if (isKilled && clientId === this.clientId) {
+  onZombieHit = ({ shooterClientId, zombieId, isKilled }) => {
+    this.screen.onZombieHit({ shooterClientId, zombieId, isKilled });
+    if (isKilled && shooterClientId === this.clientId) {
       this.setState({ kills: this.state.kills + 1 });
     }
   };

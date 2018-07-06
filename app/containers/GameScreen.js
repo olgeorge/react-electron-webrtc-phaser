@@ -71,8 +71,8 @@ class GameScreen extends EventEmitter {
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.addBackground();
     this.archer = this.addArcher({
-      username: this.username || '2345',
-      clientId: this.clientId || '2345',
+      username: this.username,
+      clientId: this.clientId,
     });
     this.repositionArchers();
   };
@@ -105,14 +105,22 @@ class GameScreen extends EventEmitter {
     const x = -100;
     const y = -100;
     const sprite = this.game.add.sprite(x, y, 'archer', 0);
-    sprite.anchor.setTo(0.5, 0.5);
-    sprite.animations.add('aim', _.range(0, 13), 20, false);
-    sprite.animations.add('shoot', [14, 15, 0], 20, false);
     const text = this.game.add.text(x - NAME_DISPLACEMENT_X, y - NAME_DISPLACEMENT_Y, username,
       { font: "15px", fill: 'white', align: 'center' });
     const ar = { clientId, username, sprite, text, joinTime: new Date().getTime() };
+    sprite.anchor.setTo(0.5, 0.5);
+    const aimAnim = sprite.animations.add('aim', _.range(0, 13), 20, false);
+    const shootAnim = sprite.animations.add('shoot', [14, 15, 0], 20, false);
+    if (this.clientId !== clientId) {
+      // Archers for other players can imitate shooting
+      aimAnim.onComplete.add(() => sprite.animations.play('shoot'), this);
+      shootAnim.onComplete.add(() => {
+        if (!ar.zombieHit) { return; }
+        this.hitZombie(ar.zombieHit);
+        ar.zombieHit = undefined;
+      }, this);
+    }
     this.archers[clientId] = ar;
-    this.repositionArchers();
     return ar;
   };
 
@@ -122,6 +130,13 @@ class GameScreen extends EventEmitter {
     ar.sprite.destroy();
     ar.text.destroy();
     delete this.archers[clientId];
+  };
+
+  updateArchers = (newClients) => {
+    const archersToDelete = _.omit(this.archers, Object.keys(newClients));
+    const clientsToAdd = _.omit(newClients, Object.keys(this.archers));
+    Object.values(archersToDelete).forEach(({ clientId }) => this.removeArcher({ clientId }));
+    Object.values(clientsToAdd).forEach(({ clientId, username }) => this.addArcher({ clientId, username }));
     this.repositionArchers();
   };
 
@@ -194,6 +209,7 @@ class GameScreen extends EventEmitter {
         zombie.isVisited = false;
       }
     });
+    this.updateArchers(map.clients);
   };
 
   freezeGame = () => {
@@ -221,8 +237,9 @@ class GameScreen extends EventEmitter {
     });
   };
 
-  onZombieHit = ({ clientId, zombieId, isKilled }) => {
+  hitZombie = ({ zombieId, isKilled }) => {
     const zombie = this.zombies[zombieId];
+    if (!zombie) { return; }
     if (isKilled) {
       zombie.isDead = true;
       zombie.sprite.body.velocity.x = 0;
@@ -230,6 +247,19 @@ class GameScreen extends EventEmitter {
       zombie.sprite.animations.play('die');
     } else {
       zombie.sprite.animations.play('hit');
+    }
+  };
+
+  onZombieHit = ({ shooterClientId, zombieId, isKilled }) => {
+    if (shooterClientId === this.clientId) {
+      this.hitZombie({ zombieId, isKilled });
+    } else {
+      console.log('shooterClientId', shooterClientId);
+      console.log('archers', this.archers);
+      const ar = this.archers[shooterClientId];
+      if (!ar) { return; }
+      ar.zombieHit = { zombieId, isKilled };
+      ar.sprite.animations.play('shoot');
     }
   };
 

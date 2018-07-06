@@ -156,7 +156,7 @@ class GameClientService extends EventEmitter {
       }
       case TYPE_ZOMBIE_HIT: {
         const { shooterClientId, zombieId, isKilled } = message;
-        this.emit(EVENT_ZOMBIE_HIT, { clientId: shooterClientId, zombieId, isKilled });
+        this.emit(EVENT_ZOMBIE_HIT, { shooterClientId, zombieId, isKilled });
         break;
       }
       default:
