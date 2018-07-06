@@ -14,10 +14,6 @@
   justify-content: center;
 }
 
-.formCentered {
-  text-align: center;
-}
-
 .container h2 {
   font-size: 3rem;
   padding: 20px;
@@ -26,4 +22,13 @@
 .container a {
   font-size: 2rem;
   padding: 10px;
+}
+
+.container a:hover {
+  font-size: 2.3rem;
+  padding-top: 5px;
+}
+
+.formCentered {
+  text-align: center;
 }

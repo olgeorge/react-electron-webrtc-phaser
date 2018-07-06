@@ -1,3 +1,143 @@
+.roomsListContainer {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+
+  align-items: flex-start;
+  margin: 10px 20px;
+}
+
+.roomsList {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+
+  align-items: flex-start;
+  align-content: flex-start;
+
+  flex: 1 1 auto;
+}
+
+.roomPanel {
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px;
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+
+  justify-content: space-around;
+  align-items: center;
+
+  margin: 0px 10px 10px 0px;
+}
+
+.serversListContainer {
+  height: 100vh;
+
+  /*display: -webkit-box;*/
+  /*display: -moz-box;*/
+  /*display: -ms-flexbox;*/
+  /*display: -webkit-flex;*/
+  /*display: flex;*/
+
+  /*-webkit-flex-flow: column nowrap;*/
+  /*flex-flow: column nowrap;*/
+
+  margin: 10px 50px;
+
+  overflow-y: scroll;
+}
+
+.serversList {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+
+  align-items: stretch;
+}
+
+.serverPanel {
+  background-color: rgba(255, 255, 255, 0.3);
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding: 5px;
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: row nowrap;
+  flex-flow: row nowrap;
+
+  /*min-height: 200px;*/
+  height: auto;
+
+  margin: 5px 0px;
+}
+
+.serverPanel > div:first-child  {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+
+  justify-content: center;
+  align-items: center;
+
+  border-right: 1px solid white;
+  padding: 20px;
+}
+
+.serverPanel > .roomsListContainer {
+  flex: 1;
+}
+
+.serverPanel a,
+.roomPanel a {
+  font-size: 1em;
+  border: 1px solid white;
+  border-radius: 6px;
+  padding: 5px 20px 5px 20px;
+  height: 35px;
+}
+
+.serverPanel a:hover,
+.roomPanel a:hover {
+  font-size: 1.2em;
+  padding: 5px 14px 5px 14px;
+}
+
 .outerContainer {
   height: 100%;
 }
@@ -57,6 +197,12 @@
 }
 
 .backButton {
+  position: absolute;
+  z-index: 1000;
+}
+
+.backButton:hover {
+  font-size: 1.2em;
   position: absolute;
   z-index: 1000;
 }

@@ -14,6 +14,8 @@ import {
   mapChanged,
   gameOver,
 } from '../actions/actions';
+import Rooms from './Rooms'
+import Servers from './Servers'
 
 class PlayGame extends Component {
 
@@ -33,12 +35,15 @@ class PlayGame extends Component {
         return this.gameClientService.discoverServers();
       })
       .then((servers) => {
-        //this.props.dispatchServersDiscovered(servers);
-        const server = Object.values(servers)[0];
-        if (server) {
-          this.setState({ serverId: server.serverId });
-          this.gameClientService.joinNewRoom(server.serverId);
-        }
+        this.props.dispatchServersDiscovered(servers);
+        //console.log('servers', servers);
+        //
+        ////this.props.dispatchServersDiscovered(servers);
+        //const server = Object.values(servers)[0];
+        //if (server) {
+        //  this.setState({ serverId: server.serverId });
+        //  this.gameClientService.joinNewRoom(server.serverId);
+        //}
       })
   }
 
@@ -47,6 +52,15 @@ class PlayGame extends Component {
     this.gameClientService.removeListener(EVENT_GAME_OVER, this.onGameOver);
     this.gameClientService = undefined;
   }
+
+  onJoin = (serverId, roomId) => {
+    this.setState({ serverId });
+    if (roomId) {
+      this.gameClientService.joinRoom(serverId, roomId);
+    } else {
+      this.gameClientService.joinNewRoom(serverId);
+    }
+  };
 
   onGameOver = () => {
     this.props.dispatchGameOver();
@@ -57,18 +71,27 @@ class PlayGame extends Component {
       user,
       availableServers,
     } = this.props;
+
+    //const rooms = _.flatten(Object.keys(availableServers).map(serverId => {
+    //  const { rooms, hostUsername } = availableServers[serverId];
+    //  return rooms.map(({ roomId, numPlayers }) => ({ serverId, hostUsername, roomId, numPlayers }));
+    //}));
+    //console.log(rooms);
+    const servers = _.sortBy(Object.values(availableServers), 'serverId');
+    console.log('==availableServers');
+    console.log(servers);
     return (
       <div className={styles.outerContainer}>
-        {/*{*/}
-          {/*!this.state.serverId &&*/}
-          <div className={styles.backButton} data-tid="backButton">
-            <Link to="/home">
-              <i className="fa fa-arrow-left fa-3x"/>
-            </Link>
-          </div>
-        {/*<div className={styles.container}>*/}
-          {/*<pre>{JSON.stringify(availableServers, null, 2)}</pre>*/}
-        {/*</div>*/}
+        <div className={styles.backButton} data-tid="backButton">
+          <Link to="/home">
+            <i className="fa fa-arrow-left fa-3x"/>
+          </Link>
+        </div>
+        {/*<pre>{JSON.stringify(rooms)}</pre>*/}
+        {
+          !this.state.serverId &&
+          <Servers servers={servers} onJoin={this.onJoin}/>
+        }
         {
           this.state.serverId &&
           <Game username={user.username}/>
