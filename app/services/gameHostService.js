@@ -96,11 +96,12 @@ class GameHostService extends EventEmitter {
     });
   };
 
-  _reportUserJoined = (joinedClientId) => {
+  _reportUserJoined = (joinedClientId, joinedUsername) => {
     getOtherRoomClients(joinedClientId).forEach(({ connection }) => {
       connection.sendMessage({
         type: TYPE_USER_JOINED,
         joinedClientId,
+        joinedUsername,
       });
     });
   };
@@ -163,7 +164,7 @@ class GameHostService extends EventEmitter {
         const { roomId = uuidv4(), username } = message;
         connections[clientId] = { clientId, roomId, connection };
         this.emit(EVENT_USER_JOINED, { clientId, username, roomId });
-        this._reportUserJoined(clientId);
+        this._reportUserJoined(clientId, username);
         break;
       }
       case TYPE_LEAVE_ROOM: {
