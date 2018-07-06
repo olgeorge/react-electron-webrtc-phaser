@@ -33,18 +33,20 @@ class Game extends Component {
     const { username } = this.props;
 
     this.gameClientService = getClientService(username);
-    this.gameClientService.on(EVENT_MAP_CHANGED, this.onMapChanged);
-    this.gameClientService.on(EVENT_ZOMBIE_HIT, this.onZombieHit);
-    this.gameClientService.on(EVENT_GAME_OVER, this.onGameOver);
-    this.gameClientService.on(EVENT_JOINED, this.startRendering);
-    this.gameClientService.on(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
-    this.gameClientService.on(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
-    this.gameClientService.on(EVENT_CONNECTION_ERROR, this.onConnectionError);
-    this.gameClientService.on(EVENT_CONNECTION_SUCCESS, this.onConnectionSuccess);
 
     this.screen = new GameScreen('game-canvas', this.gameClientService.clientId, username);
     this.screen.on(LOAD_COMPLETE, this.onLoadComplete);
     this.screen.on(SHOOT, this.shootAtPoint);
+
+    this.startRendering();
+
+    this.gameClientService.on(EVENT_MAP_CHANGED, this.onMapChanged);
+    this.gameClientService.on(EVENT_ZOMBIE_HIT, this.onZombieHit);
+    this.gameClientService.on(EVENT_GAME_OVER, this.onGameOver);
+    this.gameClientService.on(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
+    this.gameClientService.on(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
+    this.gameClientService.on(EVENT_CONNECTION_ERROR, this.onConnectionError);
+    this.gameClientService.on(EVENT_CONNECTION_SUCCESS, this.onConnectionSuccess);
   }
 
   componentWillUnmount() {
@@ -62,7 +64,6 @@ class Game extends Component {
     this.gameClientService.removeListener(EVENT_MAP_CHANGED, this.onMapChanged);
     this.gameClientService.removeListener(EVENT_ZOMBIE_HIT, this.onZombieHit);
     this.gameClientService.removeListener(EVENT_GAME_OVER, this.onGameOver);
-    this.gameClientService.removeListener(EVENT_JOINED, this.startRendering);
     this.gameClientService.removeListener(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
     this.gameClientService.removeListener(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
     this.gameClientService.removeListener(EVENT_CONNECTION_ERROR, this.onConnectionError);
