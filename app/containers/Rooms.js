@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import styles from './Counter.css';
 
-const Room = (onJoin, { roomId, hostUsername, numPlayers }) => {
+const Room = (onJoin, { roomId, numPlayers }) => {
   return (
     <div key={roomId} className={styles.roomPanel}>
       <h5>Players: { numPlayers }</h5>
-      <a onClick={() => onJoin(roomId)}>Join room</a>
+      { onJoin && <a onClick={() => onJoin(roomId)}>Join room</a> }
     </div>
   )
 };

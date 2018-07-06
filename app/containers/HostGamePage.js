@@ -10,6 +10,7 @@ import {
 import {
   roomsChanged,
 } from '../actions/actions';
+import Rooms from './Rooms';
 
 class HostGame extends Component {
 
@@ -25,7 +26,8 @@ class HostGame extends Component {
     const {
       rooms,
     } = this.props;
-
+    const displayRooms = _.sortBy(Object.values(rooms), 'roomId')
+      .map(({ roomId, usernames }) => ({ roomId, numPlayers: usernames.length }));
     return (
       <div className={styles.outerContainer}>
         <div className={styles.backButton} data-tid="backButton">
@@ -33,8 +35,9 @@ class HostGame extends Component {
             <i className="fa fa-arrow-left fa-3x" />
           </Link>
         </div>
-        <div className={styles.container}>
-          <pre>{JSON.stringify(rooms, null, 2)}</pre>
+        <div className={styles.serverRoomsListContainer}>
+          <h2>Opened Rooms</h2>
+          <Rooms rooms={displayRooms}/>
         </div>
       </div>
     );

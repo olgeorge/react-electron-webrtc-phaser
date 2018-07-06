@@ -185,7 +185,7 @@ class GameEngine extends EventEmitter {
   _destroyRoom = (roomId) => {
     if (rooms[roomId]) delete rooms[roomId];
     this.emit(ROOMS_CHANGED, rooms);
-  }
+  };
 }
 
 let engine = null;
