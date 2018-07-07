@@ -2,10 +2,10 @@
 import React from 'react';
 import { Switch, Route } from 'react-router';
 import App from './containers/App';
-import HomePage from './containers/HomePage';
-import LoginPage from './containers/LoginPage';
-import PlayGamePage from './containers/PlayGamePage';
-import HostGamePage from './containers/HostGamePage';
+import HomePage from './components/HomePage';
+import LoginPage from './components/LoginPage';
+import PlayGamePage from './components/PlayGamePage';
+import HostGamePage from './components/HostGamePage';
 
 export default class Routes extends React.Component {
 

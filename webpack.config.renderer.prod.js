@@ -13,6 +13,8 @@ import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 
 CheckNodeEnv('production');
 
+const phaserModulePath = path.join(__dirname, '/node_modules/phaser/');
+
 export default merge.smart(baseConfig, {
   devtool: 'source-map',
 
@@ -28,8 +30,19 @@ export default merge.smart(baseConfig, {
     filename: 'renderer.prod.js'
   },
 
+  resolve: {
+    alias: {
+      'phaser': path.join(phaserModulePath, 'build/custom/phaser-split.js'),
+      'pixi': path.join(phaserModulePath, 'build/custom/pixi.js'),
+      'p2': path.join(phaserModulePath, 'build/custom/p2.js'),
+    }
+  },
+
   module: {
     rules: [
+      { test: /pixi\.js/, loader: 'expose-loader?PIXI' },
+      { test: /phaser-split\.js$/, loader: 'expose-loader?Phaser' },
+      { test: /p2\.js/, loader: 'expose-loader?p2' },
       // Extract all .global.css to style.css as is
       {
         test: /\.global\.css$/,
