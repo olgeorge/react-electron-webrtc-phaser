@@ -61,8 +61,8 @@ class GameScreen extends EventEmitter {
   preload = () => {
     //https://opengameart.org/content/archer-static-64x64
     //https://jesse-m.itch.io/skeleton-pack
-    const loader = this.game.load.image('bg', 'dist/assets/wall-full_6.png');
-    loader.spritesheet('archer', 'dist/assets/archer_3.png', 64, 64, 16);
+    const loader = this.game.load.image('bg', 'dist/assets/background.png');
+    loader.spritesheet('archer', 'dist/assets/archer.png', 64, 64, 16);
     loader.spritesheet('zombie', 'dist/assets/zombie.png', 35, 33, 13 + 15 + 8);
     loader.onLoadComplete.addOnce(this.onLoadComplete, this);
   };
