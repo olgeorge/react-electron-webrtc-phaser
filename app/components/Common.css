@@ -1,3 +1,38 @@
+.container {
+  height: 100%;
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: column nowrap;
+  flex-flow: column nowrap;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.container h2 {
+  font-size: 3rem;
+  padding: 20px;
+}
+
+.container a {
+  font-size: 2rem;
+  padding: 10px;
+}
+
+.container a:hover {
+  font-size: 2.3rem;
+  padding-top: 5px;
+}
+
+.formCentered {
+  text-align: center;
+}
+
 .roomsListContainer {
   display: -webkit-box;
   display: -moz-box;

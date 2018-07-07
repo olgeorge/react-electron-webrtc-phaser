@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FormGroup, ControlLabel, FormControl, Button } from 'react-bootstrap';
-import styles from './Home.css';
+import styles from './Common.css';
 import { setUsername } from '../actions/actions';
 import { history } from '../store/configureStore';
 

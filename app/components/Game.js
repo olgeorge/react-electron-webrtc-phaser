@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styles from './Counter.css';
+import styles from './Common.css';
 import {
   getService as getClientService,
   EVENT_JOINED,

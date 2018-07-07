@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import Game from './Game'
-import styles from './Counter.css';
+import styles from './Common.css';
 import { getService as getClientService } from '../services/gameClientService';
 import {
   serversDiscovered,

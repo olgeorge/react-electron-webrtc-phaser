@@ -4,7 +4,10 @@
  */
 @import "~font-awesome/css/font-awesome.css";
 
-html, body, #root, #root > div {
+html,
+body,
+#root,
+#root > div {
   height: 100%;
   padding: 0;
   margin: 0;
@@ -13,9 +16,7 @@ html, body, #root, #root > div {
 }
 
 body {
-  /*position: relative;*/
   color: white;
-  /*height: 100vh;*/
   background-color: #232c39;
   background-image: linear-gradient(45deg, rgba(57, 216, 255, 0.5) 10%, rgba(57, 102, 115, 0.7));
   font-family: Arial, Helvetica, Helvetica Neue, serif;

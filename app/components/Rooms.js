@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import styles from './Counter.css';
+import styles from './Common.css';
 
 const Room = (onJoin, { roomId, numPlayers }) => {
   return (

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './Counter.css';
+import styles from './Common.css';
 import { Panel } from 'react-bootstrap';
 import Rooms from './Rooms';
 
