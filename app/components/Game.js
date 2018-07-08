@@ -6,7 +6,7 @@ import {
   EVENT_OTHER_USER_JOINED,
   EVENT_OTHER_USER_LEFT,
   EVENT_MAP_CHANGED,
-  EVENT_ZOMBIE_HIT,
+  EVENT_USER_SHOT,
   EVENT_GAME_OVER,
   EVENT_CONNECTION_ERROR,
   EVENT_CONNECTION_SUCCESS,
@@ -41,7 +41,7 @@ class Game extends Component {
     this.startRendering();
 
     this.gameClientService.on(EVENT_MAP_CHANGED, this.onMapChanged);
-    this.gameClientService.on(EVENT_ZOMBIE_HIT, this.onZombieHit);
+    this.gameClientService.on(EVENT_USER_SHOT, this.onUserShot);
     this.gameClientService.on(EVENT_GAME_OVER, this.onGameOver);
     this.gameClientService.on(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
     this.gameClientService.on(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
@@ -62,7 +62,7 @@ class Game extends Component {
     if (!this.gameClientService) return;
     this.gameClientService.stop();
     this.gameClientService.removeListener(EVENT_MAP_CHANGED, this.onMapChanged);
-    this.gameClientService.removeListener(EVENT_ZOMBIE_HIT, this.onZombieHit);
+    this.gameClientService.removeListener(EVENT_USER_SHOT, this.onUserShot);
     this.gameClientService.removeListener(EVENT_GAME_OVER, this.onGameOver);
     this.gameClientService.removeListener(EVENT_OTHER_USER_JOINED, this.otherUserJoined);
     this.gameClientService.removeListener(EVENT_OTHER_USER_LEFT, this.otherUserLeft);
@@ -104,8 +104,8 @@ class Game extends Component {
     this.screen.repositionArchers();
   };
 
-  onZombieHit = ({ shooterClientId, zombieId, isKilled }) => {
-    this.screen.onZombieHit({ shooterClientId, zombieId, isKilled });
+  onUserShot = ({ shooterClientId, point, zombieId, isKilled }) => {
+    this.screen.onUserShot({ shooterClientId, point, zombieId, isKilled });
     if (isKilled && shooterClientId === this.clientId) {
       this.setState({ kills: this.state.kills + 1 });
     }

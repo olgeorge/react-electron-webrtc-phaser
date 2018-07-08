@@ -9,7 +9,7 @@ import {
   TYPE_USER_LEFT ,
   TYPE_REPORT_MAP,
   TYPE_GAME_OVER,
-  TYPE_ZOMBIE_HIT,
+  TYPE_USER_SHOT,
   TYPE_JOIN_ROOM,
   TYPE_LEAVE_ROOM,
   TYPE_START_GAME,
@@ -20,7 +20,7 @@ export const EVENT_JOINED = 'joined';
 export const EVENT_OTHER_USER_JOINED = 'other-user-joined';
 export const EVENT_OTHER_USER_LEFT = 'other-user-left';
 export const EVENT_MAP_CHANGED = 'map-changed';
-export const EVENT_ZOMBIE_HIT = 'zombie-hit';
+export const EVENT_USER_SHOT = 'user-shot';
 export const EVENT_GAME_OVER = 'game-over';
 export const EVENT_CONNECTION_SUCCESS = 'connection-success';
 export const EVENT_CONNECTION_ERROR = 'connection-error';
@@ -154,9 +154,9 @@ class GameClientService extends EventEmitter {
         this.emit(EVENT_GAME_OVER);
         break;
       }
-      case TYPE_ZOMBIE_HIT: {
-        const { shooterClientId, zombieId, isKilled } = message;
-        this.emit(EVENT_ZOMBIE_HIT, { shooterClientId, zombieId, isKilled });
+      case TYPE_USER_SHOT: {
+        const { shooterClientId, point, zombieId, isKilled } = message;
+        this.emit(EVENT_USER_SHOT, { shooterClientId, point, zombieId, isKilled });
         break;
       }
       default:

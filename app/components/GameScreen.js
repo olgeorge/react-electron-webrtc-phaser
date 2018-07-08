@@ -21,6 +21,7 @@ const ZOMBIE_ANCHOR_Y = 21 / ZOMBIE_HEIGHT;
 const ZOMBIE_SCALE = 2;
 const MAP_MARGIN_LEFT = 55;
 const MAP_MARGIN_TOP = 20;
+const ARROW_SPEED = 5000;
 
 const NAME_DISPLACEMENT_X = 22;
 const NAME_DISPLACEMENT_Y = 53;
@@ -30,6 +31,11 @@ const random = (fromInclusive, toExclusive) => Math.floor(Math.random() * (toExc
 const cellToPixel = ({ mapx, mapy }) => ({
   x: Math.round(MAP_MARGIN_LEFT + mapx * CELL_WIDTH + ZOMBIE_WIDTH / 2 * ZOMBIE_SCALE),
   y: Math.round(MAP_MARGIN_TOP + mapy * CELL_HEIGHT + ZOMBIE_HEIGHT / 2 * ZOMBIE_SCALE),
+});
+
+const pixelToCell = ({ x, y }) => ({
+  mapx: Math.floor((x - MAP_MARGIN_LEFT) / CELL_WIDTH),
+  mapy: Math.floor((y - MAP_MARGIN_TOP) / CELL_HEIGHT),
 });
 
 const pointIsInZombie = ({ x, y }, sprite) => {
@@ -47,6 +53,7 @@ class GameScreen extends EventEmitter {
     this.game = undefined;
     this.background = undefined;
     this.archer = undefined;
+    this.archerArrows = {};
     this.archers = {};
     this.zombies = {};
   }
@@ -64,6 +71,7 @@ class GameScreen extends EventEmitter {
     const loader = this.game.load.image('bg', 'dist/assets/background.png');
     loader.spritesheet('archer', 'dist/assets/archer.png', 64, 64, 16);
     loader.spritesheet('zombie', 'dist/assets/zombie.png', 35, 33, 13 + 15 + 8);
+    loader.image('arrow', 'dist/assets/arrow.png');
     loader.onLoadComplete.addOnce(this.onLoadComplete, this);
   };
 
@@ -75,6 +83,10 @@ class GameScreen extends EventEmitter {
       clientId: this.clientId,
     });
     this.repositionArchers();
+  };
+
+  onLoadComplete = () => {
+    this.emit(LOAD_COMPLETE);
   };
 
   addBackground = () => {
@@ -90,15 +102,71 @@ class GameScreen extends EventEmitter {
   };
 
   onInputUp = (sprite, { x, y }) => {
-    this.archer.sprite.animations.play('shoot');
-    const zombieHit = _.find(Object.values(this.zombies), (zombie) => pointIsInZombie({ x, y }, zombie.sprite));
+    const point = { x, y };
+    const zombieHit = _.find(Object.values(this.zombies), (zombie) => pointIsInZombie(point, zombie.sprite));
     if (zombieHit) {
       this.emit(SHOOT, { x: zombieHit.mapx, y: zombieHit.mapy });
+    } else {
+      const cell = pixelToCell(point);
+      this.emit(SHOOT, { x: cell.mapx, y: cell.mapy });
     }
   };
 
-  onLoadComplete = () => {
-    this.emit(LOAD_COMPLETE);
+  onUserShot = ({ shooterClientId, point, zombieId, isKilled }) => {
+    const mapPoint = { mapx: point.x, mapy: point.y };
+    if (shooterClientId === this.clientId) {
+      this.archerShoot({ shooterClientId, mapPoint, zombieId, isKilled });
+    } else {
+      const ar = this.archers[shooterClientId];
+      if (!ar) { return; }
+      ar.sprite.animations.play('aim');
+      setTimeout(() => {
+        this.archerShoot({ shooterClientId, mapPoint, zombieId, isKilled });
+      }, 500);
+    }
+  };
+
+  archerShoot = ({ shooterClientId, mapPoint, zombieId, isKilled }) => {
+    const ar = this.archers[shooterClientId];
+    ar.sprite.animations.play('shoot');
+    const point = cellToPixel(mapPoint);
+    this.shootArrow({ shooterClientId, point, zombieId, isKilled });
+  };
+
+  hitZombie = ({ zombieId, isKilled }) => {
+    const zombie = this.zombies[zombieId];
+    if (!zombie) { return; }
+    if (isKilled) {
+      zombie.isDead = true;
+      zombie.sprite.body.velocity.x = 0;
+      zombie.sprite.body.velocity.y = 0;
+      zombie.sprite.animations.play('die');
+    } else {
+      zombie.sprite.animations.play('hit');
+    }
+  };
+
+  shootArrow = ({ shooterClientId, point, zombieId, isKilled }) => {
+    const ar = (this.archers[shooterClientId] || {}).sprite;
+    if (!ar) { return }
+
+    const start = { x: ar.x + 20, y: ar.y };
+    const distance = Math.sqrt(Math.pow(start.x - point.x, 2) + Math.pow(start.y - point.y, 2));
+    const angle = Math.asin((point.y - start.y) / distance);
+    const flightTimeMs = (distance / ARROW_SPEED) * 1000;
+
+    const sprite = this.game.add.sprite(start.x, start.y, 'arrow');
+    this.game.physics.enable(sprite, Phaser.Physics.ARCADE);
+    sprite.body.velocity.x = ARROW_SPEED * Math.cos(angle);
+    sprite.body.velocity.y = ARROW_SPEED * Math.sin(angle);
+    //sprite.anchor.setTo(0.5, 0.5);
+    sprite.angle = angle / Math.PI * 180;
+
+    // No collision detection, better to delete before than after
+    setTimeout(() => {
+      sprite.destroy();
+      this.hitZombie({ zombieId, isKilled });
+    }, flightTimeMs * 0.8);
   };
 
   addArcher = ({ clientId, username }) => {
@@ -111,15 +179,6 @@ class GameScreen extends EventEmitter {
     sprite.anchor.setTo(0.5, 0.5);
     const aimAnim = sprite.animations.add('aim', _.range(0, 13), 20, false);
     const shootAnim = sprite.animations.add('shoot', [14, 15, 0], 20, false);
-    if (this.clientId !== clientId) {
-      // Archers for other players can imitate shooting
-      aimAnim.onComplete.add(() => sprite.animations.play('shoot'), this);
-      shootAnim.onComplete.add(() => {
-        if (!ar.zombieHit) { return; }
-        this.hitZombie(ar.zombieHit);
-        ar.zombieHit = undefined;
-      }, this);
-    }
     this.archers[clientId] = ar;
     return ar;
   };
@@ -236,33 +295,6 @@ class GameScreen extends EventEmitter {
       }
     });
   };
-
-  hitZombie = ({ zombieId, isKilled }) => {
-    const zombie = this.zombies[zombieId];
-    if (!zombie) { return; }
-    if (isKilled) {
-      zombie.isDead = true;
-      zombie.sprite.body.velocity.x = 0;
-      zombie.sprite.body.velocity.y = 0;
-      zombie.sprite.animations.play('die');
-    } else {
-      zombie.sprite.animations.play('hit');
-    }
-  };
-
-  onZombieHit = ({ shooterClientId, zombieId, isKilled }) => {
-    if (shooterClientId === this.clientId) {
-      this.hitZombie({ zombieId, isKilled });
-    } else {
-      console.log('shooterClientId', shooterClientId);
-      console.log('archers', this.archers);
-      const ar = this.archers[shooterClientId];
-      if (!ar) { return; }
-      ar.zombieHit = { zombieId, isKilled };
-      ar.sprite.animations.play('shoot');
-    }
-  };
-
   destroy = () => {
     if (this.game) {
       this.game.destroy();

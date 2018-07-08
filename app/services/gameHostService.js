@@ -10,7 +10,7 @@ export const TYPE_USER_JOINED = 'user-joined';
 export const TYPE_USER_LEFT = 'user-left';
 export const TYPE_REPORT_MAP = 'report-map';
 export const TYPE_GAME_OVER = 'game-over';
-export const TYPE_ZOMBIE_HIT = 'zombie-hit';
+export const TYPE_USER_SHOT = 'user-shot';
 
 // Client messages
 export const TYPE_LEAVE_ROOM = 'leave-room';
@@ -85,13 +85,14 @@ class GameHostService extends EventEmitter {
     if (connections[clientId]) delete connections[clientId];
   };
 
-  reportZombieHit = (clientId, zombieId, isKilled) => {
+  reportUserShot = (clientId, point, zombieId, isKilled) => {
     getAllRoomClients(clientId).forEach(({ connection }) => {
       connection.sendMessage({
-        type: TYPE_ZOMBIE_HIT,
+        type: TYPE_USER_SHOT,
+        shooterClientId: clientId,
+        point,
         zombieId,
         isKilled,
-        shooterClientId: clientId,
       });
     });
   };
