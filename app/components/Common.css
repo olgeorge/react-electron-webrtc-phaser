@@ -1,3 +1,15 @@
+.splashImage {
+  background-image: url(dist/assets/splash.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: absolute;
+  z-index: -100;
+  width: 800px;
+  height: 600px;
+  opacity: 0.1;
+}
+
 .container {
   height: 100%;
 
@@ -201,12 +213,12 @@
 }
 
 .solidOverlay {
-  background-color: rgba(57, 102, 115, 1);
+  background-color: rgba(89, 136, 171, 1);
 }
 
 .gameOverlay {
   position: absolute;
-  background-color: rgba(57, 102, 115, 0.5);
+  background-color: rgba(89, 136, 171, 0.5);
   height: 600px;
   width: 800px;
 

@@ -6,6 +6,7 @@ import HomePage from './components/HomePage';
 import LoginPage from './components/LoginPage';
 import PlayGamePage from './components/PlayGamePage';
 import HostGamePage from './components/HostGamePage';
+import styles from './components/Common.css';
 
 export default class Routes extends React.Component {
 
@@ -16,6 +17,7 @@ export default class Routes extends React.Component {
   render() {
     return (
       <App>
+        <div className={styles.splashImage}/>
         <Switch>
           <Route path="/play-game" component={PlayGamePage} />
           <Route path="/host-game" component={HostGamePage} />

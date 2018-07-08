@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import styles from './Common.css';
-import { clearUsername } from '../actions/actions';
 
 type Props = {};
 
@@ -16,7 +15,6 @@ class HomePage extends Component<Props> {
         <h2>Winter is Coming</h2>
         <Link to="/play-game">Play a game</Link>
         <Link to="/host-game">Host a game</Link>
-        {/*<Link to="/" onClick={this.props.dispatchClearUsername}>Logout</Link>*/}
       </div>
     );
   }
@@ -25,6 +23,5 @@ class HomePage extends Component<Props> {
 export default connect(
   state => ({}),
   {
-    dispatchClearUsername: clearUsername,
   }
 )(HomePage);

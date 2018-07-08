@@ -18,7 +18,7 @@ body,
 body {
   color: white;
   background-color: #232c39;
-  background-image: linear-gradient(45deg, rgba(57, 216, 255, 0.5) 10%, rgba(57, 102, 115, 0.7));
+  background-image: linear-gradient(45deg, rgba(89, 136, 171, 1) 10%, rgba(89, 136, 171, 0.1));
   font-family: Arial, Helvetica, Helvetica Neue, serif;
   overflow-y: hidden;
 }

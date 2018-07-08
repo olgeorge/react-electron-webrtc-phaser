@@ -24,6 +24,7 @@ class HostGame extends Component {
 
   render() {
     const {
+      user,
       rooms,
     } = this.props;
     const displayRooms = _.sortBy(Object.values(rooms), 'roomId')
@@ -36,7 +37,16 @@ class HostGame extends Component {
           </Link>
         </div>
         <div className={styles.serverRoomsListContainer}>
-          <h2>Opened Rooms</h2>
+          {
+            !!displayRooms.length &&
+            <h2>Opened Rooms for host { user.username }</h2>
+          }
+          {
+            !displayRooms.length &&
+            <div className={styles.container} data-tid="container">
+              <h2>Host is ready</h2>
+            </div>
+          }
           <Rooms rooms={displayRooms}/>
         </div>
       </div>

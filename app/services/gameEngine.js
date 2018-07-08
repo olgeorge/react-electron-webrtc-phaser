@@ -129,7 +129,7 @@ class GameEngine extends EventEmitter {
     } else {
       rooms[roomId].clients[clientId] = client;
       rooms[roomId].isFreezed = false;
-      console.log(`Unfreezing the room ${room.roomId}`);
+      console.log(`Unfreezing the room ${roomId}`);
     }
     this._reportMapToClient({ clientId, roomId });
     this.emit(ROOMS_CHANGED, rooms);
