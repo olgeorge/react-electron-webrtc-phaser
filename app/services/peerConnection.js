@@ -19,17 +19,16 @@ class PeerConnection extends EventEmitter {
     this.remoteId = remoteId;
     this.isInitiator = isInitiator;
     this.peer = this._buildPeer(remoteId, isInitiator);
-    console.log(`Created new peer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
+    console.log(`Created new peer connection ${this.id}`);
     this.signallingService.on('signal', this._onSignallingOffer);
   }
 
   sendMessage = (message) => {
-    console.log('Sending message to client' + this.id, message);
     this.peer.send(JSON.stringify(message));
   };
 
   close = () => {
-    console.log(`Destroying peer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
+    console.log(`Destroying peer connection ${this.id}`);
     if (this.peer) {
       this.peer.destroy();
     }
@@ -39,22 +38,20 @@ class PeerConnection extends EventEmitter {
     this.close();
     this.peer = this._buildPeer(remoteId, isInitiator);
     this.signallingService.on('signal', this._onSignallingOffer);
-    console.log(`Reconnecting. Created new peer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
+    console.log(`Attempting reconnect. Created new peer ${this.id}`);
   };
 
   _addReconnectInterval = (remoteId, isInitiator) => {
-    console.log('attempting add reconn interval' + this.id);
-    // Only reconnect for an initiator. Acceptor will receive a new peer when initiator reconnect;
+    // Only reconnect for an initiator. Acceptor will receive a new peer when initiator reconnects;
     if (this.isInitiator && !this.reconnectInterval) {
-      console.log('ADDING reconn interval ' + this.id);
+      console.log(`Starting reconnect sequence for peer ${this.id}`);
       this.reconnectInterval = setInterval(() => this._reconnect(remoteId, isInitiator), RECONNECT_INTERVAL_MS);
     }
   };
 
   _removeReconnectInterval = () => {
-    console.log('attempting remove reconn interval' + this.id);
     if (this.reconnectInterval) {
-      console.log('REMOVING reconn interval' + this.id);
+      console.log(`Stopping reconnect sequence for peer ${this.id}`);
       clearInterval(this.reconnectInterval);
       this.reconnectInterval = undefined;
     }
@@ -96,13 +93,13 @@ class PeerConnection extends EventEmitter {
 
   _onSignallingOffer = (offer, remoteId) => {
     if (this.remoteId === remoteId) {
-      console.log(`Received signalling offer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
+      console.log(`Received signalling offer for peer ${this.id}`);
       this.peer.signal(offer);
     }
   };
 
   signalOffer = (offer) => {
-    console.log(`Signalling peer with offer, initiator: ${this.isInitiator}, destroyed: ${this.peer.destroyed}` + this.id);
+    console.log(`Signalling peer with offer for peer ${this.id}`);
     this.peer.signal(offer);
   };
 

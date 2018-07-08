@@ -22,7 +22,6 @@ const MAP_WIDTH = 32;
 const MAP_HEIGHT = 10;
 
 const ZOMBIE_HEALTH = 100;
-const SHOT_DAMAGE = 50;
 
 let lastZombieId = 0;
 
@@ -93,8 +92,6 @@ class GameEngine extends EventEmitter {
   _tickForRoom = (room) => {
     if (room.isFreezed) { return; }
 
-    const interval = (new Date().getTime() - room.tickEpochMs || 0) / 1000
-    console.log('Tick for room, interval', interval);
     room.tickEpochMs = new Date().getTime();
     room.zombies.forEach(moveZombie);
     const newZombiesCount = this._getNewZombiesCount(room);
@@ -116,6 +113,7 @@ class GameEngine extends EventEmitter {
   };
 
   _userJoined = ({ clientId, username, roomId }) => {
+    console.log(`Client ${clientId} joined the room ${roomId}`);
     const client = { clientId, username };
     if (!rooms[roomId]) {
       rooms[roomId] = {
@@ -131,7 +129,7 @@ class GameEngine extends EventEmitter {
     } else {
       rooms[roomId].clients[clientId] = client;
       rooms[roomId].isFreezed = false;
-      console.log('Unfreezing the room');
+      console.log(`Unfreezing the room ${room.roomId}`);
     }
     this._reportMapToClient({ clientId, roomId });
     this.emit(ROOMS_CHANGED, rooms);
@@ -139,14 +137,14 @@ class GameEngine extends EventEmitter {
 
   _userLeft = ({ clientId }) => {
     const room = getClientRoom(clientId);
+    console.log(`Client ${clientId} left the room ${room.roomId}`);
     if (room.clients[clientId]) delete room.clients[clientId];
     if (!Object.values(room.clients).length) {
       // Let's give the user a chance to rejoin in case of connection problems etc
       room.isFreezed = true;
-      console.log('Freezing the room');
+      console.log(`The last client has left, freezing the room ${room.roomId} for the time being`);
       setTimeout(() => {
         if (!Object.values(room.clients).length) {
-          console.log('Deleting the room');
           this._destroyRoom(room.roomId);
         }
       }, REJOIN_GRACE_PERIOD_MS);
@@ -160,6 +158,7 @@ class GameEngine extends EventEmitter {
 
   _userStartedGame = ({ clientId }) => {
     const room = getClientRoom(clientId);
+    console.log(`Starting game for room ${room.roomId}`);
     if (room.isStarted) {
       return;
     }
@@ -187,6 +186,7 @@ class GameEngine extends EventEmitter {
   };
 
   _destroyRoom = (roomId) => {
+    console.log(`Destroying the room ${roomId}`);
     if (rooms[roomId]) delete rooms[roomId];
     this.emit(ROOMS_CHANGED, rooms);
   };

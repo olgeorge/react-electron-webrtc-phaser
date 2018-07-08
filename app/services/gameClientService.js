@@ -25,8 +25,6 @@ export const EVENT_GAME_OVER = 'game-over';
 export const EVENT_CONNECTION_SUCCESS = 'connection-success';
 export const EVENT_CONNECTION_ERROR = 'connection-error';
 
-const RECONNECT_INTERVAL_MS = 3000;
-
 class GameClientService extends EventEmitter {
 
   constructor(clientUsername) {
@@ -57,12 +55,6 @@ class GameClientService extends EventEmitter {
     return this.roomService.discoverRooms();
   };
 
-  //_rejoinRoom = (serverId, roomId) => {
-  //  this.leaveRoom();
-  //  console.log('Reestablishing RTC connection');
-  //  this.joinRoom(serverId, roomId);
-  //};
-
   joinRoom = (serverId, roomId) => {
     if (this.serverConnection) {
       throw new Error("Already in a room. Please call client.leaveRoom() before joining again");
@@ -73,11 +65,9 @@ class GameClientService extends EventEmitter {
     this.serverConnection.on('error', (err) => {
       console.warn('Client RTC connection failed', err);
       this.emit(EVENT_CONNECTION_ERROR);
-      //this.reconnectInterval = setInterval(this._rejoinRoom, RECONNECT_INTERVAL_MS);
     });
     this.serverConnection.on('connect', () => {
       console.log('Successfully connected to server');
-      //if (this.reconnectInterval) clearInterval(this.reconnectInterval);
       this.serverConnection.sendMessage({
         type: TYPE_JOIN_ROOM,
         clientId: this.clientId,
@@ -96,15 +86,6 @@ class GameClientService extends EventEmitter {
 
   leaveRoom = () => {
     if (this.serverConnection) {
-      //this.serverConnection.sendMessage({
-      //  type: TYPE_LEAVE_ROOM,
-      //  clientId: this.clientId,
-      //});
-      //
-      //this.serverConnection.removeAllListeners('error');
-      //this.serverConnection.removeAllListeners('connect');
-      //this.serverConnection.removeAllListeners('message');
-      //this.serverConnection.removeAllListeners('close');
       this.serverConnection.close();
       this.serverConnection = undefined;
     }
@@ -129,7 +110,7 @@ class GameClientService extends EventEmitter {
     this.serverConnection.sendMessage({
       type: TYPE_SHOOT,
       point: { x, y },
-      damage: { x, y },
+      damage,
       clientId: this.clientId,
     })
   };

@@ -62,9 +62,8 @@ app.on('ready', async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    resizable: false,
+    resizable: process.env.NODE_ENV !== 'production',
     width: 800,
-    //width: 1000,
     height: 600,
   });
 

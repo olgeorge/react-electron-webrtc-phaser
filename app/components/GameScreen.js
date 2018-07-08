@@ -26,6 +26,8 @@ const ARROW_SPEED = 5000;
 const NAME_DISPLACEMENT_X = 22;
 const NAME_DISPLACEMENT_Y = 53;
 
+const MAX_SHOT_DAMAGE = 100;
+
 const random = (fromInclusive, toExclusive) => Math.floor(Math.random() * (toExclusive - fromInclusive)) + fromInclusive;
 
 const cellToPixel = ({ mapx, mapy }) => ({
@@ -53,7 +55,6 @@ class GameScreen extends EventEmitter {
     this.game = undefined;
     this.background = undefined;
     this.archer = undefined;
-    this.archerArrows = {};
     this.archers = {};
     this.zombies = {};
   }
@@ -102,9 +103,15 @@ class GameScreen extends EventEmitter {
   };
 
   onInputUp = (sprite, { x, y }) => {
+    const aimFrame = this.archer.sprite.animations.currentAnim.frame;
+    const damage = aimFrame < 5 ? 0 : MAX_SHOT_DAMAGE * aimFrame / (12);
+    if (!damage) {
+      this.archer.sprite.animations.stop('aim', true);
+      return;
+    }
+
     const point = { x, y };
     const zombieHit = _.find(Object.values(this.zombies), (zombie) => pointIsInZombie(point, zombie.sprite));
-    const damage = 50;
     if (zombieHit) {
       this.emit(SHOOT, { damage, x: zombieHit.mapx, y: zombieHit.mapy });
     } else {
