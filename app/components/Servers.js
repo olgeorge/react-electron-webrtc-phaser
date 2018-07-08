@@ -26,7 +26,17 @@ class Servers extends Component {
     } = this.props;
     return (
       <div className={styles.serversListContainer}>
-        <h2>Available servers</h2>
+        {
+          !!servers.length &&
+          <h2>Available servers</h2>
+        }
+        {
+          !servers.length &&
+          <div className={styles.container}>
+            <h2>No servers found</h2>
+            <h4>however, you can host your own!</h4>
+          </div>
+        }
         <div className={styles.serversList}>
           { servers.map(server => Server(onJoin, server)) }
         </div>
