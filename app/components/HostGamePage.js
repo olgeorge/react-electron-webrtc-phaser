@@ -15,11 +15,15 @@ import Rooms from './Rooms';
 class HostGame extends Component {
 
   componentDidMount() {
-    console.log('starting up server');
+    console.log(`Starting up server for host ${this.props.user.username}`);
     const gameHostService = getHostService(this.props.user.username);
-    const gameEngine = getGameEngine(gameHostService);
-    gameEngine.on(ROOMS_CHANGED, this.props.dispatchRoomsChanged);
-    gameEngine.start();
+    this.gameEngine = getGameEngine(gameHostService);
+    this.gameEngine.on(ROOMS_CHANGED, this.props.dispatchRoomsChanged);
+    this.gameEngine.start();
+  }
+
+  componentWillUnmount() {
+    this.gameEngine.removeListener(ROOMS_CHANGED, this.props.dispatchRoomsChanged);
   }
 
   render() {
@@ -44,6 +48,7 @@ class HostGame extends Component {
           {
             !displayRooms.length &&
             <div className={styles.container} data-tid="container">
+
               <h2>Host is ready</h2>
             </div>
           }

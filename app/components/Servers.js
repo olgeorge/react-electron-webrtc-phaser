@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import styles from './Common.css';
-import { Panel } from 'react-bootstrap';
 import Rooms from './Rooms';
 
 const Server = (onJoin, { serverId, hostUsername, rooms }) => {
@@ -26,8 +24,6 @@ class Servers extends Component {
       servers,
       onJoin,
     } = this.props;
-    console.log('==== servers');
-    console.log(servers);
     return (
       <div className={styles.serversListContainer}>
         <h2>Available servers</h2>

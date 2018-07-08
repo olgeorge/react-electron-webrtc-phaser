@@ -62,24 +62,24 @@ class PeerConnection extends EventEmitter {
     peer._debug = console.log;
 
     peer.on('error', (err) => {
-      console.error('WebRTC error' + this.id, err);
+      console.error(`WebRTC error for peer ${this.id}`, err);
       this._addReconnectInterval(remoteId, isInitiator);
       this.emit(EVENT_ERROR, err);
     });
 
     peer.on('close', () => {
-      console.log('WebRTC close' + this.id);
+      console.log(`WebRTC closed for peer ${this.id}`);
       this.signallingService.removeListener('signal', this._onSignallingOffer);
       this.emit(EVENT_CLOSE);
     });
 
     peer.on('signal', (data) => {
-      console.log('WebRTC signal' + this.id);
+      console.log(`WebRTC signalled for peer ${this.id}`);
       this.signallingService.signalOffer(data, remoteId);
     });
 
     peer.on('connect', () => {
-      console.log('WebRTC connect' + this.id);
+      console.log(`WebRTC connected for peer ${this.id}`);
       this._removeReconnectInterval();
       this.emit(EVENT_CONNECT);
     });

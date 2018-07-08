@@ -60,7 +60,7 @@ class GameClientService extends EventEmitter {
       throw new Error("Already in a room. Please call client.leaveRoom() before joining again");
     }
 
-    console.log('Client connecting');
+    console.log('Establishing RTC connection to server');
     this.serverConnection = connectToServer(this.signallingService, serverId);
     this.serverConnection.on('error', (err) => {
       console.warn('Client RTC connection failed', err);

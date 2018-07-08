@@ -125,19 +125,19 @@ class GameHostService extends EventEmitter {
   };
 
   _onClientConnected = (connection, clientId) => {
-    console.log('Server: client connected ' + clientId);
+    console.log(`Server received new client connection ${clientId}`);
     connection.on('error', (err) => {
       console.warn('Server RTC connection failed', err);
       this._onClientDisconnected(clientId);
     });
     connection.on('connect', () => {
-      console.log('Server received a client connection');
+      console.log(`Client connection ${clientId} established`);
     });
     connection.on('message', (message) => {
       this._onGameMessageReceived(message, connection);
     });
     connection.on('close', () => {
-      console.log('A client disconnected from server');
+      console.log(`Client ${clientId} disconnected from server`);
       this._onClientDisconnected(clientId);
     });
     connection.clientId = clientId;
@@ -155,7 +155,6 @@ class GameHostService extends EventEmitter {
     console.log('Server received');
     console.log(message);
     const { type, clientId } = message;
-    //const { clientId } = connection;
     switch (type) {
       case TYPE_JOIN_ROOM: {
         if (connections[clientId]) {

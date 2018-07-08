@@ -16,7 +16,6 @@ class WebSocketConnection extends EventEmitter {
     super(...args);
     this.localId = localId;
     this.isServer = isServer;
-    this.isOpened = false;
     this.isReady = false;
     this.messagesToResend = [];
   }
@@ -41,18 +40,15 @@ class WebSocketConnection extends EventEmitter {
       ...message,
     });
     if (this.isReady) {
-      console.log('sending message', message);
       this.socket.send(rawMessage);
     } else {
       // We will only resend the last message
       // Reconnections, heartbeats, queues are implemented by socket.io but you need a socket.io server
-      console.log('enqueueing message', message);
       this.messagesToResend = [rawMessage];
     }
   };
 
   _onMessageReceived = (message) => {
-    console.log('received message', message);
     const localIdName = this.isServer ? 'serverId' : 'clientId';
     // Filter out messages for other nodes, unless it's a broadcast
     // Normally routing is done on websocket server, but at least its free
@@ -64,7 +60,7 @@ class WebSocketConnection extends EventEmitter {
   _connectWebSocket = () => {
     this.socket = new ReconnectingWebSocket(WEB_SOCKET_ENDPOINT);
     this.socket.addEventListener('open', (event) => {
-      console.log('!!!socket opened');
+      console.log('WebSocket opened');
       if (this.reconnectInterval) {
         clearInterval(this.reconnectInterval);
         this.reconnectInterval = undefined;
@@ -77,13 +73,13 @@ class WebSocketConnection extends EventEmitter {
     this.socket.addEventListener('close', (event) => {
       this.isReady = false;
       this.reconnectInterval = this.reconnectInterval || setInterval(() => {
-        console.log('!!!reconnecting');
+        console.log('WebSocket reconnecting');
         this.socket.reconnect();
       }, RECONNECT_INTERVAL_MS);
-      console.log('!!!EVENT CLOSED');
+      console.log('WebSocket closed');
     });
     this.socket.addEventListener('error', (event) => {
-      console.log('!!!EVENT ERROR');
+      console.log('WebSocket error', event);
     });
 
     return new Promise((resolve, reject) => {
