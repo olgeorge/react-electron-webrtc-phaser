@@ -104,11 +104,12 @@ class GameScreen extends EventEmitter {
   onInputUp = (sprite, { x, y }) => {
     const point = { x, y };
     const zombieHit = _.find(Object.values(this.zombies), (zombie) => pointIsInZombie(point, zombie.sprite));
+    const damage = 50;
     if (zombieHit) {
-      this.emit(SHOOT, { x: zombieHit.mapx, y: zombieHit.mapy });
+      this.emit(SHOOT, { damage, x: zombieHit.mapx, y: zombieHit.mapy });
     } else {
       const cell = pixelToCell(point);
-      this.emit(SHOOT, { x: cell.mapx, y: cell.mapy });
+      this.emit(SHOOT, { damage, x: cell.mapx, y: cell.mapy });
     }
   };
 

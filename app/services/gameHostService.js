@@ -181,8 +181,9 @@ class GameHostService extends EventEmitter {
         break;
       }
       case TYPE_SHOOT: {
+        const damage = message;
         const { x, y } = message.point;
-        this.emit(EVENT_USER_SHOT, { clientId, point: { x, y } });
+        this.emit(EVENT_USER_SHOT, { clientId, damage, point: { x, y } });
         break;
       }
       default:

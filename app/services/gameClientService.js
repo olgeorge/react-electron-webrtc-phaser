@@ -121,7 +121,7 @@ class GameClientService extends EventEmitter {
     })
   };
 
-  shoot = ({ x, y }) => {
+  shoot = ({ damage, x, y }) => {
     if (!this.serverConnection) {
       throw new Error("Client is not connected. Please call client.joinRoom(serverId, roomId) first");
     }
@@ -129,6 +129,7 @@ class GameClientService extends EventEmitter {
     this.serverConnection.sendMessage({
       type: TYPE_SHOOT,
       point: { x, y },
+      damage: { x, y },
       clientId: this.clientId,
     })
   };

@@ -111,8 +111,8 @@ class Game extends Component {
     }
   };
 
-  shootAtPoint = ({ x, y }) => {
-    this.gameClientService.shoot({ x, y });
+  shootAtPoint = ({ damage, x, y }) => {
+    this.gameClientService.shoot({ damage, x, y });
   };
 
   onGameOver = () => {

@@ -168,7 +168,7 @@ class GameEngine extends EventEmitter {
     this.emit(ROOMS_CHANGED, rooms);
   };
 
-  _userShot = ({ clientId, point: { x, y } }) => {
+  _userShot = ({ clientId, damage, point: { x, y } }) => {
     const point = { x, y };
     const room = getClientRoom(clientId);
     const zombieHitIndex = _.findIndex(room.zombies, point);
@@ -176,7 +176,7 @@ class GameEngine extends EventEmitter {
     let isKilled = undefined;
     if (zombieHitIndex >= 0) {
       const zombieHit = room.zombies[zombieHitIndex];
-      zombieHit.health -= SHOT_DAMAGE;
+      zombieHit.health -= damage;
       zombieId = zombieHit.id;
       isKilled = zombieHit.health <= 0;
       if (isKilled) {
