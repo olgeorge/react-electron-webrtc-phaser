@@ -150,12 +150,12 @@ class GameScreen extends EventEmitter {
     const ar = (this.archers[shooterClientId] || {}).sprite;
     if (!ar) { return }
 
-    const start = { x: ar.x + 20, y: ar.y };
-    const distance = Math.sqrt(Math.pow(start.x - point.x, 2) + Math.pow(start.y - point.y, 2));
-    const angle = Math.asin((point.y - start.y) / distance);
+    const startingPoint = { x: ar.x + 20, y: ar.y };
+    const distance = Math.sqrt(Math.pow(ar.x - point.x, 2) + Math.pow(ar.y - point.y, 2));
+    const angle = Math.asin((point.y - ar.y) / distance);
     const flightTimeMs = (distance / ARROW_SPEED) * 1000;
 
-    const sprite = this.game.add.sprite(start.x, start.y, 'arrow');
+    const sprite = this.game.add.sprite(ar.x, ar.y, 'arrow');
     this.game.physics.enable(sprite, Phaser.Physics.ARCADE);
     sprite.body.velocity.x = ARROW_SPEED * Math.cos(angle);
     sprite.body.velocity.y = ARROW_SPEED * Math.sin(angle);
