@@ -67,6 +67,10 @@ class PeerConnection extends EventEmitter {
       this.emit(EVENT_ERROR, err);
     });
 
+    peer.on('signalingStateChange', (state) => {
+      console.log(`WebRTC state changed for peer ${this.id}`, state);
+    });
+
     peer.on('close', () => {
       console.log(`WebRTC closed for peer ${this.id}`);
       this.signallingService.removeListener('signal', this._onSignallingOffer);
@@ -92,7 +96,11 @@ class PeerConnection extends EventEmitter {
   };
 
   _onSignallingOffer = (offer, remoteId) => {
-    if (this.remoteId === remoteId) {
+    // State 'stable' (equal to STATE_INPROGRESS) means that the offers are already exchanged
+    // And no more offers are needed. This check is necessary to avoid the following error:
+    // `Failed to set remote answer sdp: Called in wrong state: STATE_INPROGRESS`
+    if (this.remoteId === remoteId && this.peer._pc.signalingState !== 'stable') {
+      // On the server side client peers need to ignore offers for other client peers
       console.log(`Received signalling offer for peer ${this.id}`);
       this.peer.signal(offer);
     }

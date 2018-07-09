@@ -31,6 +31,7 @@ class GameClientService extends EventEmitter {
     super();
     this.clientUsername = clientUsername;
     this.clientId = uuidv4();
+    this.roomId = undefined;
     this.wsConnection = getClientConnection(this.clientId);
     this.signallingService = getClientSignallingService(this.wsConnection, this.clientId);
     this.roomService = getClientRoomService(this.wsConnection);
@@ -59,6 +60,8 @@ class GameClientService extends EventEmitter {
     if (this.serverConnection) {
       throw new Error("Already in a room. Please call client.leaveRoom() before joining again");
     }
+
+    this.roomId = roomId;
 
     console.log('Establishing RTC connection to server');
     this.serverConnection = connectToServer(this.signallingService, serverId);
@@ -112,6 +115,8 @@ class GameClientService extends EventEmitter {
       point: { x, y },
       damage,
       clientId: this.clientId,
+      roomId: this.roomId,
+      username: this.clientUsername,
     })
   };
 

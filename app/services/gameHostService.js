@@ -144,12 +144,23 @@ class GameHostService extends EventEmitter {
   };
 
   _onClientDisconnected = (clientId) => {
-    if (connections[clientId]) {
+    const connection = connections[clientId];
+    if (connection) {
+      //connection.removeAllListeners('error');
+      //connection.removeAllListeners('connect');
+      //connection.removeAllListeners('message');
+      //connection.removeAllListeners('close');
       delete connections[clientId];
       this.emit(EVENT_USER_LEFT, { clientId });
       this._reportUserLeft(clientId);
     }
   };
+
+  _onClientJoinedRoom = ({ roomId, clientId, username, connection }) => {
+    connections[clientId] = { clientId, roomId, connection };
+    this.emit(EVENT_USER_JOINED, { clientId, username, roomId });
+    this._reportUserJoined(clientId, username);
+  }
 
   _onGameMessageReceived = (message, connection) => {
     console.log('Server received');
@@ -162,16 +173,14 @@ class GameHostService extends EventEmitter {
           break;
         }
         const { roomId = uuidv4(), username } = message;
-        connections[clientId] = { clientId, roomId, connection };
-        this.emit(EVENT_USER_JOINED, { clientId, username, roomId });
-        this._reportUserJoined(clientId, username);
+        this._onClientJoinedRoom({ roomId, clientId, username, connection });
         break;
       }
       case TYPE_LEAVE_ROOM: {
-        connection.removeAllListeners('error');
-        connection.removeAllListeners('connect');
-        connection.removeAllListeners('message');
-        connection.removeAllListeners('close');
+        //connection.removeAllListeners('error');
+        //connection.removeAllListeners('connect');
+        //connection.removeAllListeners('message');
+        //connection.removeAllListeners('close');
         this._onClientDisconnected(clientId);
         break;
       }
@@ -180,6 +189,12 @@ class GameHostService extends EventEmitter {
         break;
       }
       case TYPE_SHOOT: {
+        if (!connections[clientId]) {
+          const { roomId, username } = message;
+          // Server decided that client has disconnected, but the client didn't notice
+          this._onClientConnected(connection, clientId);
+          this._onClientJoinedRoom({ roomId, clientId, username, connection });
+        }
         const { damage } = message;
         const { x, y } = message.point;
         this.emit(EVENT_USER_SHOT, { clientId, damage, point: { x, y } });
