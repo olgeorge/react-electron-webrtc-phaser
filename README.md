@@ -54,8 +54,8 @@ The game mechanics is as follows:
 
 You can download the packaged binaries for Mac and Windows:
 
-- [Mac](https://drive.google.com/open?id=1xzQ6E78r9GTnT-AK6-7aqGKkuwjTug8G) - install as a regular Mac app
-- [Windows](https://drive.google.com/open?id=18Tsi8MYdtaGGeOHsztBkqxZwXrtNzT0E) - unpack and run the .exe
+- [Mac](https://drive.google.com/open?id=1zkYu915gHuQbxsIy-CDfLipO28FDYONJ) - install as a regular Mac app
+- [Windows](https://drive.google.com/open?id=1B-1dHOZb6KAxedRr70K_ujPU9txBuhzU) - unpack and run the .exe
 
 ## Install
 
