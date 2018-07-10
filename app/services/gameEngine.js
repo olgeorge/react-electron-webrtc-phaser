@@ -60,17 +60,6 @@ const moveZombie = (zombie) => {
   return zombie;
 };
 
-ageAndRemoveZombiesIfDead = room => {
-  room.zombies.forEach((zombie, index) => {
-    if (zombie.isDead) {
-      zombie.isDead += 1;
-    }
-  });
-  room.zombies = room.zombies.filter(zombie => {
-    return !zombie.isDead || zombie.isDead <= 2;
-  });
-};
-
 class GameEngine extends EventEmitter {
 
   constructor(gameHostService) {
@@ -102,11 +91,22 @@ class GameEngine extends EventEmitter {
     return Math.floor(rate) + ((Math.random() > rate % 1) ? 1 : 0);
   };
 
+  _ageAndRemoveZombiesIfDead = room => {
+    room.zombies.forEach((zombie, index) => {
+      if (zombie.isDead) {
+        zombie.isDead += 1;
+      }
+    });
+    room.zombies = room.zombies.filter(zombie => {
+      return !zombie.isDead || zombie.isDead <= 2;
+    });
+  };
+
   _tickForRoom = (room) => {
     if (room.isFreezed) { return; }
 
     room.tickEpochMs = new Date().getTime();
-    ageAndRemoveZombiesIfDead(room);
+    this._ageAndRemoveZombiesIfDead(room);
     room.zombies.forEach(moveZombie);
     const newZombiesCount = this._getNewZombiesCount(room);
     _.times(newZombiesCount, () => {

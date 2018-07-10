@@ -121,6 +121,7 @@ class GameClientService extends EventEmitter {
   };
 
   _onGameMessageReceived = (message) => {
+    console.log(`Client ${this.clientId} received message`, message);
     switch (message.type) {
       case TYPE_USER_JOINED: {
         const { joinedClientId, joinedUsername } = message;

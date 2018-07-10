@@ -148,7 +148,6 @@ class GameScreen extends EventEmitter {
     const zombie = this.zombies[zombieId];
     if (!zombie) { return; }
     if (isKilled) {
-      zombie.isDead = true;
       zombie.sprite.body.velocity.x = 0;
       zombie.sprite.body.velocity.y = 0;
       zombie.sprite.animations.play('die');
@@ -251,6 +250,14 @@ class GameScreen extends EventEmitter {
   };
 
   updateZombie = ({ x: mapx, y: mapy, vx: mapvx, vy: mapvy, id, health, isDead }) => {
+    if (isDead) {
+      if (!this.zombies[id]) {
+        return {};
+      }
+      this.zombies[id] = { ...this.zombies[id], isDead: !!isDead };
+      return this.zombies[id];
+    }
+
     const { x, y } = cellToPixel({ mapx, mapy });
     const { sprite } = this.zombies[id];
     sprite.x = x;
@@ -274,7 +281,7 @@ class GameScreen extends EventEmitter {
       updatedZombie.isVisited = true;
     });
     Object.values(this.zombies).forEach(zombie => {
-      if (zombie && !zombie.isVisited && !zombie.isDead) {
+      if (zombie && !zombie.isVisited) {
         this.removeZombie(zombie.id);
       } else {
         zombie.isVisited = false;
