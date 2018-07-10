@@ -1,5 +1,7 @@
 # Winter Is Coming: Serverless React Electron Peer-to-Peer Phaser Game
 
+<img src="https://github.com/olgeorge/react-electron-webrtc-phaser/raw/master/resources/screenshot.png" alt="screenshot" width="888px" height="641px"/>
+
 ### Tech Stack
 
 - Built starting off of [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
