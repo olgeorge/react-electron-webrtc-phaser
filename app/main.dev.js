@@ -10,6 +10,7 @@
  *
  * @flow
  */
+import path from 'path';
 import { app, BrowserWindow } from 'electron';
 import MenuBuilder from './menu';
 
@@ -60,12 +61,20 @@ app.on('ready', async () => {
     await installExtensions();
   }
 
+  const icons = (process.platform === 'linux') ? '../resources/icon.png' : '../resources/icon.ico';
+
   mainWindow = new BrowserWindow({
     show: false,
     resizable: process.env.NODE_ENV !== 'production',
+    maximizable: process.env.NODE_ENV !== 'production',
+    //frame: process.env.NODE_ENV !== 'production',
     width: 800,
     height: 600,
+    icon: path.join(__dirname, icons),
+    //devTools: true,
   });
+
+  mainWindow.setMenu(null);
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 

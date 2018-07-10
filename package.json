@@ -65,6 +65,7 @@
       ]
     },
     "win": {
+      "icon": "resources/icon.ico",
       "target": [
         "nsis"
       ]
@@ -83,7 +84,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/olgeorge/winter-is-coming.git"
+    "url": "git+https://github.com/olgeorge/react-electron-webrtc-phaser.git"
   },
   "author": {
     "name": "Georgii Oleinikov",
@@ -92,7 +93,7 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/olgeorge/winter-is-coming/issues"
+    "url": "https://github.com/olgeorge/react-electron-webrtc-phaser/issues"
   },
   "keywords": [
     "mysterium",
@@ -100,7 +101,7 @@
     "winter",
     "coming"
   ],
-  "homepage": "https://github.com/olgeorge/winter-is-coming#readme",
+  "homepage": "https://github.com/olgeorge/react-electron-webrtc-phaser#readme",
   "jest": {
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
@@ -194,6 +195,7 @@
     "webpack-merge": "^4.1.2"
   },
   "dependencies": {
+    "bootstrap": "^3.3.7",
     "devtron": "^1.4.0",
     "electron-debug": "^1.5.0",
     "expose-loader": "^0.7.5",

@@ -11,7 +11,7 @@ const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
 
 const CELL_WIDTH = 24;
-const CELL_HEIGHT = 58;
+const CELL_HEIGHT = 55;
 const ZOMBIE_WIDTH = 35;
 const ZOMBIE_HEIGHT = 33;
 const ZOMBIE_HIT_WIDTH = 15;
