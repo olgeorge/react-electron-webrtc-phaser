@@ -6,10 +6,11 @@
 - Built with [Electron](http://electron.atom.io/) to package JS into a standalone app on Mac/Windows/Linux
 - [React](https://facebook.github.io/react/), [Redux](https://github.com/reactjs/redux) and [React Router](https://github.com/reactjs/react-router) are used for the UI
 - [Phaser.io](https://phaser.io/) is used as the HTML5 WebGL game engine 
-- Uses [WebRTC](https://webrtc.org/) as the p2p communication channel
+- Uses [WebRTC](https://webrtc.org/) via [simple-peer](https://github.com/feross/simple-peer) as the p2p communication channel
 - Uses [reconnecting-websocket](https://github.com/joewalnes/reconnecting-websocket) with a [wsninja](https://wsninja.io/) free server for signalling
 - In a real world game [socket.io](https://socket.io/) should be used instead
 - Is serverless in the sense that it uses a free WebSocket server for discovery and free public STUN servers for signalling. For a production game you will of course have to use paid ones =)
+- Game art of the archer is [taken from here](https://opengameart.org/content/archer-static-64x64) and white walker [from here](https://jesse-m.itch.io/skeleton-pack)
 
 ### Game Features
 
@@ -49,13 +50,24 @@ The game mechanics is as follows:
 - The above shebang exists to make up for the difference in what server knows (30x10) grid and what player sees (continuously moving walkers)
 - The 30x10 grid and 2-second update were picked for demonstration purposes
 
+## Play
+
+You can download the packaged binaries for Mac and Windows:
+
+- [Mac](https://drive.google.com/open?id=1W6y8DBvlw00Gg1ljEpTllg0KyhwX17pv) - install as a regular Mac app
+- [Windows](https://drive.google.com/open?id=1wZ3x-05H4UzpOwVZ9KKyuLoiLjev-oVf) - unpack and run the .exe
+
 ## Install
+
+Clone the repository, then:
 
 ```bash
 $ npm install
 ```
 
 ## Run
+
+To run locally after installing:
 
 ```bash
 $ npm run dev
