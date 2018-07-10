@@ -47,7 +47,7 @@ export default class MenuBuilder {
       label: 'Electron',
       submenu: [
         {
-          label: 'About Winter Is Coming',
+          label: 'About WinterIsComing',
           selector: 'orderFrontStandardAboutPanel:'
         },
         { type: 'separator' },

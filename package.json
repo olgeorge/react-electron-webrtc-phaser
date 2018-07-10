@@ -1,6 +1,6 @@
 {
   "name": "winter-is-coming",
-  "productName": "Winter Is Coming",
+  "productName": "WinterIsComing",
   "version": "0.0.1",
   "scripts": {
     "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
@@ -40,7 +40,7 @@
     ]
   },
   "build": {
-    "productName": "Winter Is Coming",
+    "productName": "WinterIsComing",
     "appId": "org.develar.WinterIsComing",
     "files": [
       "dist/",

@@ -1,6 +1,6 @@
 {
   "name": "winter-is-coming",
-  "productName": "Winter Is Coming",
+  "productName": "WinterIsComing",
   "version": "0.0.1",
   "main": "./main.prod.js",
   "author": {
