@@ -102,7 +102,7 @@ class GameEngine extends EventEmitter {
     });
     room.zombiesPerTick += NEW_ZOMBIES_PER_TICK_INCREMENT;
     room.totalTicks += 1;
-    if (_.find(room.zombies, zombie => zombie.x < -1000000)) {
+    if (_.find(room.zombies, zombie => zombie.x < 0)) {
       Object.keys(room.clients).forEach(clientId => this.gameHostService.reportGameOver(clientId));
       this._destroyRoom(room.roomId);
     }
