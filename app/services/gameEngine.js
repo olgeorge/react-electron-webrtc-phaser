@@ -45,6 +45,8 @@ const newZombie = () => ({
 });
 
 const moveZombie = (zombie) => {
+  if (zombie.isDead) { return; }
+
   const r = random(-2, 3);
   zombie.x = withinMapWidth(zombie.x + zombie.vx);
   zombie.y = withinMapHeight(zombie.y + zombie.vy);
@@ -56,6 +58,17 @@ const moveZombie = (zombie) => {
     zombie.vy = 0;
   }
   return zombie;
+};
+
+ageAndRemoveZombiesIfDead = room => {
+  room.zombies.forEach((zombie, index) => {
+    if (zombie.isDead) {
+      zombie.isDead += 1;
+    }
+  });
+  room.zombies = room.zombies.filter(zombie => {
+    return !zombie.isDead || zombie.isDead <= 2;
+  });
 };
 
 class GameEngine extends EventEmitter {
@@ -93,6 +106,7 @@ class GameEngine extends EventEmitter {
     if (room.isFreezed) { return; }
 
     room.tickEpochMs = new Date().getTime();
+    ageAndRemoveZombiesIfDead(room);
     room.zombies.forEach(moveZombie);
     const newZombiesCount = this._getNewZombiesCount(room);
     _.times(newZombiesCount, () => {
@@ -170,7 +184,7 @@ class GameEngine extends EventEmitter {
   _userShot = ({ clientId, damage, point: { x, y } }) => {
     const point = { x, y };
     const room = getClientRoom(clientId);
-    const zombieHitIndex = _.findIndex(room.zombies, point);
+    const zombieHitIndex = _.findIndex(room.zombies, (zombie) => !zombie.isDead && zombie.x === x && zombie.y === y);
     let zombieId = undefined;
     let isKilled = undefined;
     if (zombieHitIndex >= 0) {
@@ -179,7 +193,7 @@ class GameEngine extends EventEmitter {
       zombieId = zombieHit.id;
       isKilled = zombieHit.health <= 0;
       if (isKilled) {
-        room.zombies.splice(zombieHitIndex, 1);
+        zombieHit.isDead = 1;
       }
     }
     this.gameHostService.reportUserShot(clientId, point, zombieId, isKilled);

@@ -250,20 +250,22 @@ class GameScreen extends EventEmitter {
     return zombie;
   };
 
-  updateZombie = ({ x: mapx, y: mapy, vx: mapvx, vy: mapvy, id, health }) => {
+  updateZombie = ({ x: mapx, y: mapy, vx: mapvx, vy: mapvy, id, health, isDead }) => {
     const { x, y } = cellToPixel({ mapx, mapy });
     const { sprite } = this.zombies[id];
     sprite.x = x;
     sprite.y = y;
     sprite.body.velocity.x = mapvx * CELL_WIDTH / 2;
     sprite.body.velocity.y = mapvy * CELL_HEIGHT / 2;
-    const zombie = { id, mapx, mapy, mapvx, mapvy, health, sprite };
+    const zombie = { id, mapx, mapy, mapvx, mapvy, health, sprite, isDead };
     this.zombies[id] = zombie;
     return zombie;
   };
 
-  createOrUpdateZombie = ({ x, y, vx, vy, id, health }) => {
-    return this.zombies[id] ? this.updateZombie({ x, y, vx, vy, id, health }) : this.addZombie({ x, y, vx, vy, id, health });
+  createOrUpdateZombie = ({ x, y, vx, vy, id, health, isDead }) => {
+    return (!this.zombies[id] && !isDead) ?
+      this.addZombie({ x, y, vx, vy, id, health }) :
+      this.updateZombie({ x, y, vx, vy, id, health, isDead });
   };
 
   updateMap = (map) => {
