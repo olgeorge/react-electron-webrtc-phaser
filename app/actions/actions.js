@@ -31,6 +31,9 @@ export const roomsChanged = buildActionCreator('roomsChanged', (rooms) => ({ roo
 
 export const serversDiscovered = buildActionCreator('serversDiscovered', (servers) => ({ servers }));
 
+export const clearServers = buildActionCreator('clearServers');
+
 export const mapChanged = buildActionCreator('mapChanged', ({ map }) => ({ map }));
 
 export const gameOver = buildActionCreator('gameOver');
+

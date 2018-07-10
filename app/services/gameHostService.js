@@ -163,8 +163,6 @@ class GameHostService extends EventEmitter {
   }
 
   _onGameMessageReceived = (message, connection) => {
-    console.log('Server received');
-    console.log(message);
     const { type, clientId } = message;
     switch (type) {
       case TYPE_JOIN_ROOM: {

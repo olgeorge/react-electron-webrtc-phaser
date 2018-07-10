@@ -1,15 +1,18 @@
-import _ from 'lodash';
 import {
   serversDiscovered,
+  clearServers,
 } from '../actions/actions';
 
-const initialState = {
-};
+const initialState = null;
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case serversDiscovered.type: {
       return action.servers;
+    }
+
+    case clearServers.type: {
+      return initialState;
     }
 
     default:

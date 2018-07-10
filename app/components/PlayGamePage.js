@@ -5,6 +5,7 @@ import Game from './Game'
 import styles from './Common.css';
 import { getService as getClientService } from '../services/gameClientService';
 import {
+  clearServers,
   serversDiscovered,
   mapChanged,
   gameOver,
@@ -20,6 +21,10 @@ class PlayGame extends Component {
     }
   }
 
+  componentWillMount() {
+    this.props.dispatchClearServers();
+  }
+
   componentDidMount() {
     const { user } = this.props;
     this.gameClientService = getClientService(user.username);
@@ -33,6 +38,7 @@ class PlayGame extends Component {
   }
 
   componentWillUnmount() {
+    this.props.dispatchClearServers();
     this.gameClientService.stop();
     this.gameClientService = undefined;
   }
@@ -51,7 +57,7 @@ class PlayGame extends Component {
       user,
       availableServers,
     } = this.props;
-    const servers = _.sortBy(Object.values(availableServers), 'serverId');
+    const servers = availableServers ? _.sortBy(Object.values(availableServers), 'serverId') : undefined;
     return (
       <div className={styles.outerContainer}>
         <div className={styles.backButton} data-tid="backButton">
@@ -78,6 +84,7 @@ export default connect(
     user: state.user,
   }),
   {
+    dispatchClearServers: clearServers,
     dispatchServersDiscovered: serversDiscovered,
     dispatchMapChanged: mapChanged,
     dispatchGameOver: gameOver,

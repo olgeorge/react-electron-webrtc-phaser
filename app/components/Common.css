@@ -45,6 +45,11 @@
   text-align: center;
 }
 
+.inlineLink {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 .roomsListContainer {
   display: -webkit-box;
   display: -moz-box;

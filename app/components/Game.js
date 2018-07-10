@@ -106,7 +106,7 @@ class Game extends Component {
 
   onUserShot = ({ shooterClientId, point, zombieId, isKilled }) => {
     this.screen.onUserShot({ shooterClientId, point, zombieId, isKilled });
-    if (isKilled && shooterClientId === this.clientId) {
+    if (isKilled && shooterClientId === this.gameClientService.clientId) {
       this.setState({ kills: this.state.kills + 1 });
     }
   };

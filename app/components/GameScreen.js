@@ -109,15 +109,20 @@ class GameScreen extends EventEmitter {
       this.archer.sprite.animations.stop('aim', true);
       return;
     }
-
     const point = { x, y };
-    const zombieHit = _.find(Object.values(this.zombies), (zombie) => pointIsInZombie(point, zombie.sprite));
+    const zombieHit = this.findZombieHit(point);
     if (zombieHit) {
       this.emit(SHOOT, { damage, x: zombieHit.mapx, y: zombieHit.mapy });
     } else {
       const cell = pixelToCell(point);
       this.emit(SHOOT, { damage, x: cell.mapx, y: cell.mapy });
     }
+  };
+
+  findZombieHit = (point) => {
+    return _.find(Object.values(this.zombies), (zombie) => {
+      return !zombie.isDead && pointIsInZombie(point, zombie.sprite)
+    });
   };
 
   onUserShot = ({ shooterClientId, point, zombieId, isKilled }) => {
@@ -158,16 +163,15 @@ class GameScreen extends EventEmitter {
     const ar = (this.archers[shooterClientId] || {}).sprite;
     if (!ar) { return }
 
-    const startingPoint = { x: ar.x + 20, y: ar.y };
-    const distance = Math.sqrt(Math.pow(ar.x - point.x, 2) + Math.pow(ar.y - point.y, 2));
-    const angle = Math.asin((point.y - ar.y) / distance);
+    const start = { x: ar.x + 30, y: ar.y };
+    const distance = Math.sqrt(Math.pow(start.x - point.x, 2) + Math.pow(start.y - point.y, 2));
+    const angle = Math.asin((point.y - start.y) / distance);
     const flightTimeMs = (distance / ARROW_SPEED) * 1000;
 
-    const sprite = this.game.add.sprite(ar.x, ar.y, 'arrow');
+    const sprite = this.game.add.sprite(start.x, start.y, 'arrow');
     this.game.physics.enable(sprite, Phaser.Physics.ARCADE);
     sprite.body.velocity.x = ARROW_SPEED * Math.cos(angle);
     sprite.body.velocity.y = ARROW_SPEED * Math.sin(angle);
-    //sprite.anchor.setTo(0.5, 0.5);
     sprite.angle = angle / Math.PI * 180;
 
     // No collision detection, better to delete before than after
@@ -185,8 +189,8 @@ class GameScreen extends EventEmitter {
       { font: "15px", fill: 'white', align: 'center' });
     const ar = { clientId, username, sprite, text, joinTime: new Date().getTime() };
     sprite.anchor.setTo(0.5, 0.5);
-    const aimAnim = sprite.animations.add('aim', _.range(0, 13), 20, false);
-    const shootAnim = sprite.animations.add('shoot', [14, 15, 0], 20, false);
+    sprite.animations.add('aim', _.range(0, 13), 20, false);
+    sprite.animations.add('shoot', [14, 15, 0], 20, false);
     this.archers[clientId] = ar;
     return ar;
   };
